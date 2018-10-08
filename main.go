@@ -7,12 +7,12 @@ import (
 	"os/user"
 	"runtime"
 
+	"github.com/fabric8-services/admin-console/app"
+	"github.com/fabric8-services/admin-console/controller"
 	"github.com/fabric8-services/fabric8-common/configuration"
 	"github.com/fabric8-services/fabric8-common/log"
 	"github.com/fabric8-services/fabric8-common/metric"
 	"github.com/fabric8-services/fabric8-common/sentry"
-	"github.com/fabric8-services/admin-console/app"
-	"github.com/fabric8-services/admin-console/controller"
 	"github.com/goadesign/goa"
 	goalogrus "github.com/goadesign/goa/logging/logrus"
 	"github.com/goadesign/goa/middleware"
@@ -63,7 +63,8 @@ func main() {
 	log.InitializeLogger(config.IsLogJSON(), config.GetLogLevel())
 
 	// Initialize sentry client
-	haltSentry, err := sentry.InitializeSentryClient(config.GetSentryDSN(),
+	haltSentry, err := sentry.InitializeSentryClient(
+		nil, // will use the `os.Getenv("Sentry_DSN")` instead
 		sentry.WithRelease(app.Commit),
 		sentry.WithEnvironment(config.GetEnvironment()),
 	)
