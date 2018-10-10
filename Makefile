@@ -9,13 +9,23 @@ SOURCES := $(shell find $(SOURCE_DIR) -path $(SOURCE_DIR)/vendor -prune -o -name
 DESIGN_DIR=design
 DESIGNS := $(shell find $(SOURCE_DIR)/$(DESIGN_DIR) -path $(SOURCE_DIR)/vendor -prune -o -name '*.go' -print)
 
-# declares variable that are OS-sensitive
-SELF_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
 ifeq ($(OS),Windows_NT)
-include $(SELF_DIR)Makefile.win
+include ./.make/Makefile.win
 else
-include $(SELF_DIR)Makefile.lnx
+include ./.make/Makefile.lnx
 endif
+
+# declares variable that are OS-sensitive
+include ./.make/test.mk
+
+DOCKER_BIN := $(shell command -v $(DOCKER_BIN_NAME) 2> /dev/null)
+
+ifneq ($(OS),Windows_NT)
+ifdef DOCKER_BIN
+include ./.make/docker.mk
+endif
+endif
+
 
 # This is a fix for a non-existing user in passwd file when running in a docker
 # container and trying to clone repos of dependencies
@@ -244,13 +254,12 @@ dev: prebuild-check deps generate $(FRESH_BIN) ## run the server locally
 # -------------------------------------------------------------------
 LDFLAGS=-ldflags "-X ${PACKAGE_NAME}/app.Commit=${COMMIT} -X ${PACKAGE_NAME}/app.BuildTime=${BUILD_TIME}"
 
+$(SERVER_BIN): prebuild-check deps generate ## Build the server
+	@echo "building $(SERVER_BIN)..."
+	go build -v $(LDFLAGS) -o $(SERVER_BIN)
+
 .PHONY: build
-build: prebuild-check deps generate ## Build the server
-ifeq ($(OS),Windows_NT)
-	go build -v $(LDFLAGS) -o "$(shell cygpath --windows '$(BINARY_SERVER_BIN)')"
-else
-	go build -v $(LDFLAGS) -o $(BINARY_SERVER_BIN)
-endif
+build: $(SERVER_BIN) ## Build the server
 
 .PHONY: generate
 generate: prebuild-check $(DESIGNS) $(GOAGEN_BIN) $(VENDOR_DIR) ## Generate GOA sources. Only necessary after clean of if changed `design` folder.
