@@ -1,0 +1,154 @@
+kind: Template
+apiVersion: v1
+metadata:
+  name: admin-console
+objects:
+- kind: DeploymentConfig
+  apiVersion: v1
+  metadata:
+    labels:
+      service: admin-console
+    name: admin-console
+  spec:
+    replicas: ${{REPLICAS}}
+    selector:
+      service: admin-console
+    strategy:
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 25%
+        maxUnavailable: 25%
+        timeoutSeconds: 600
+        updatePeriodSeconds: 1
+      type: Rolling
+    template:
+      metadata:
+        labels:
+          service: admin-console
+      spec:
+        containers:
+        - image: ${IMAGE}:${IMAGE_TAG}
+          env:
+          - name: ADMIN_POSTGRES_HOST
+            valueFrom:
+              secretKeyRef:
+                name: admin-console
+                key: db.host
+          - name: ADMIN_POSTGRES_PORT
+            valueFrom:
+              secretKeyRef:
+                name: admin-console
+                key: db.port
+          - name: ADMIN_POSTGRES_USER
+            valueFrom:
+              secretKeyRef:
+                name: admin-console
+                key: db.user
+          - name: ADMIN_POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: admin-console
+                key: db.password
+          - name: ADMIN_POSTGRES_CONNECTION_MAXOPEN
+            valueFrom:
+              configMapKeyRef:
+                name: admin-console
+                key: postgres.connection.maxopen
+          - name: ADMIN_POSTGRES_CONNECTION_MAXIDLE
+            valueFrom:
+              configMapKeyRef:
+                name: admin-console
+                key: postgres.connection.maxidle
+          - name: ADMIN_POSTGRES_CONNECTION_MAXOPEN
+            valueFrom:
+              configMapKeyRef:
+                name: admin-console
+                key: postgres.connection.maxopen
+          - name: ADMIN_AUTH_URL
+            valueFrom:
+              configMapKeyRef:
+                name: admin-console
+                key: auth.url
+          imagePullPolicy: Always
+          name: admin-console
+          ports:
+          - containerPort: 8089
+            protocol: TCP
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /api/status
+              port: 8089
+              scheme: HTTP
+            initialDelaySeconds: 1
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /api/status
+              port: 8089
+              scheme: HTTP
+            initialDelaySeconds: 1
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            requests:
+              cpu: 0.1m
+              memory: 10Mi
+            limits:
+              cpu: 400m
+              memory: 1.5Gi
+          terminationMessagePath: /dev/termination-log
+          volumeMounts:
+          - mountPath: /etc/fabric8/
+            name: admin-console-configs
+            readOnly: true
+        volumes:
+        - name: admin-console-configs
+          secret:
+            secretName: admin-console-config-files
+            items:
+            - key: service.account.secrets
+              path: service-account-secrets.conf
+            - key: oso.clusters
+              path: oso-clusters.conf
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+    test: false
+    triggers:
+    - type: ConfigChange
+  status:
+    details:
+      causes:
+      - type: ConfigChange
+- kind: Service
+  apiVersion: v1
+  metadata:
+    name: admin-console
+    labels:
+      service: admin-console
+  spec:
+    ports:
+      - name: "8089"
+        protocol: TCP
+        port: 80
+        targetPort: 8089
+    selector:
+      service: admin-console
+    type: ClusterIP
+    sessionAffinity: null
+parameters:
+- name: IMAGE
+  value: quay.io/openshiftio/rhel-fabric8-services-fabric8-admin-console
+- name: IMAGE_TAG
+  value: latest
+- description: Number of deployment replicas
+  displayName: Number of deployment replicas
+  required: true
+  name: REPLICAS
+  value: '1'
