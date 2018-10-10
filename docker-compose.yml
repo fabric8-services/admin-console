@@ -1,0 +1,22 @@
+version: '2'
+
+services:
+  db:
+    image: registry.centos.org/postgresql/postgresql:9.6
+    ports:
+      - "5434:5432"
+    environment:
+      POSTGRESQL_ADMIN_PASSWORD: mysecretpassword
+    networks:
+      - default
+  admin-console:
+    image: fabric8-services/admin-console:latest
+    command: -config /usr/local/admin-console/etc/config.yaml
+    environment:
+      AUTH_POSTGRES_HOST: db
+    ports:
+      - "8090:8090"
+    networks:
+      - default
+    depends_on:
+      - db
