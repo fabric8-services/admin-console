@@ -29,8 +29,11 @@ func main() {
 	// --------------------------------------------------------------------
 	var configFilePath string
 	var printConfig bool
+	var migrateDB bool
+
 	flag.StringVar(&configFilePath, "config", "", "Path to the config file to read")
 	flag.BoolVar(&printConfig, "printConfig", false, "Prints the config (including merged environment variables) and exits")
+	flag.BoolVar(&migrateDB, "migrateDatabase", false, "Migrates the database to the newest version and exits.")
 	flag.Parse()
 
 	// Override default -config switch with environment variable only if -config switch was
@@ -56,6 +59,11 @@ func main() {
 	}
 
 	if printConfig {
+		os.Exit(0)
+	}
+
+	// Nothing to here except exit, since the migration is already performed.
+	if migrateDB {
 		os.Exit(0)
 	}
 

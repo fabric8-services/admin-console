@@ -153,6 +153,12 @@ test-unit: prebuild-check $(SOURCES)
 test-unit-junit: prebuild-check ${GO_JUNIT_BIN} ${TMP_PATH}
 	bash -c "set -o pipefail; make test-unit 2>&1 | tee >(${GO_JUNIT_BIN} > ${TMP_PATH}/junit.xml)"
  
+## Compiles the server and runs the database migration with it
+migrate-database: $(SERVER_BIN)
+	@echo "running database migration..."
+	$(SERVER_BIN) -migrateDatabase
+.PHONY: migrate-database
+
 .PHONY: test-integration-with-coverage
 ## Runs the integration tests and produces coverage files for each package.
 ## Make sure you ran "make integration-test-env-prepare" before you run this target.
