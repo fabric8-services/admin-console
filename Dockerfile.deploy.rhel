@@ -3,22 +3,22 @@ FROM quay.io/openshiftio/rhel-base-golang:latest
 LABEL maintainer "Devtools <devtools@redhat.com>"
 LABEL author "Devtools <devtools@redhat.com>"
 ENV LANG=en_US.utf8
-ENV F8_INSTALL_PREFIX=/usr/local/auth
+ENV F8_INSTALL_PREFIX=/usr/local/admin-console
 
-# Create a non-root user and a group with the same name: "auth"
-ENV F8_USER_NAME=auth
+# Create a non-root user and a group with the same name: "admin-console"
+ENV F8_USER_NAME=admin-console
 RUN useradd --no-create-home -s /bin/bash ${F8_USER_NAME}
 
-COPY bin/auth ${F8_INSTALL_PREFIX}/bin/auth
+COPY bin/admin-console ${F8_INSTALL_PREFIX}/bin/admin-console
 COPY config.yaml ${F8_INSTALL_PREFIX}/etc/config.yaml
 
-COPY ./auth+pmcd.sh /auth+pmcd.sh
+COPY ./admin-console+pmcd.sh /admin-console+pmcd.sh
 EXPOSE 44321
 
 # From here onwards, any RUN, CMD, or ENTRYPOINT will be run under the following user
 USER ${F8_USER_NAME}
 
 WORKDIR ${F8_INSTALL_PREFIX}
-ENTRYPOINT [ "/auth+pmcd.sh" ]
+ENTRYPOINT [ "/admin-console+pmcd.sh" ]
 
 EXPOSE 8089
