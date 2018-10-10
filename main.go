@@ -45,7 +45,7 @@ func main() {
 		}
 	})
 	if !configSwitchIsSet {
-		if envConfigPath, ok := os.LookupEnv("F8_CONFIG_FILE_PATH"); ok {
+		if envConfigPath, ok := os.LookupEnv("ADMIN_CONFIG_FILE_PATH"); ok {
 			configFilePath = envConfigPath
 		}
 	}

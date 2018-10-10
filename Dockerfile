@@ -10,9 +10,9 @@ ARG BUILD_DIR
 ARG PROJECT_NAME
 COPY ${BUILD_DIR}/${PROJECT_NAME} /usr/local/bin/${PROJECT_NAME}
 
-ENV F8_USER_NAME=fabric8
-RUN useradd --no-create-home -s /bin/bash ${F8_USER_NAME}
+ENV ADMIN_USER_NAME=fabric8
+RUN useradd --no-create-home -s /bin/bash ${ADMIN_USER_NAME}
 # From here onwards, any RUN, CMD, or ENTRYPOINT will be run under the following user
-USER ${F8_USER_NAME}
+USER ${ADMIN_USER_NAME}
 
 ENTRYPOINT [ "${PROJECT_NAME}" ]

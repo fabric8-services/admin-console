@@ -1,0 +1,26 @@
+kind: Template
+apiVersion: v1
+metadata:
+  name: admin-console
+objects:
+- apiVersion: v1
+  kind: Secret
+  metadata:
+    name: admin-console
+  type: Opaque
+  data:
+    db.host: ZGI=
+    db.port: NTQzMg==
+    db.user: cG9zdGdyZXM=
+    db.password: bXlzZWNyZXRwYXNzd29yZA==
+- apiVersion: v1
+  kind: ConfigMap
+  metadata:
+    name: admin-console
+  type: Opaque
+  data:
+    postgres.sslmode: require
+    postgres.connection.maxidle: "90"
+    postgres.connection.maxopen: "90"
+    auth.url: http://auth:8089
+  
