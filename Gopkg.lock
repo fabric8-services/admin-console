@@ -333,6 +333,12 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/wadey/gocovmerge"
+  packages = ["."]
+  revision = "b5bfa59ec0adc420475f97f89b58045c721d761c"
+
+[[projects]]
+  branch = "master"
   name = "github.com/zach-klippenstein/goregen"
   packages = ["."]
   revision = "795b5e3961ea1912fde60af417ad85e86acc0d6a"
@@ -372,6 +378,7 @@
   branch = "master"
   name = "golang.org/x/tools"
   packages = [
+    "cover",
     "go/ast/astutil",
     "go/gcexportdata",
     "go/internal/gcimporter",
@@ -388,6 +395,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "716b211500e38fffc63aafacde5b5825481132f2ee1d72a3f027371f4265891a"
+  inputs-digest = "35918ea46a862fa15420147ec75b61b91b396ceb466307225f8da67e76db3fd5"
   solver-name = "gps-cdcl"
   solver-version = 1

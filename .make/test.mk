@@ -94,9 +94,9 @@ GO_TEST_VERBOSITY_FLAG ?=
 
 # By default use the "localhost" or specify manually during make invocation:
 #
-# 	AUTH_POSTGRES_HOST=somehost make test-integration
+# 	F8_POSTGRES_HOST=somehost make test-integration
 #
-AUTH_POSTGRES_HOST ?= localhost
+F8_POSTGRES_HOST ?= localhost
 
 # By default reduce the amount of log output from tests
 F8_LOG_LEVEL ?= error
@@ -147,7 +147,7 @@ test-unit-with-coverage: prebuild-check clean-coverage-unit $(COV_PATH_UNIT)
 test-unit: prebuild-check $(SOURCES)
 	$(call log-info,"Running test: $@")
 	$(eval TEST_PACKAGES:=$(shell go list ./... | grep -v $(ALL_PKGS_EXCLUDE_PATTERN)))
-	AUTH_DEVELOPER_MODE_ENABLED=1 AUTH_RESOURCE_UNIT_TEST=1 F8_LOG_LEVEL=$(F8_LOG_LEVEL) go test -vet off $(GO_TEST_VERBOSITY_FLAG) $(TEST_PACKAGES)
+	F8_DEVELOPER_MODE_ENABLED=1 F8_RESOURCE_UNIT_TEST=1 F8_LOG_LEVEL=$(F8_LOG_LEVEL) go test -vet off $(GO_TEST_VERBOSITY_FLAG) $(TEST_PACKAGES)
 
 .PHONY: test-unit-junit
 test-unit-junit: prebuild-check ${GO_JUNIT_BIN} ${TMP_PATH}
@@ -170,12 +170,12 @@ test-integration-with-coverage: prebuild-check clean-coverage-integration migrat
 test-integration: prebuild-check migrate-database $(SOURCES)
 	$(call log-info,"Running test: $@")
 	$(eval TEST_PACKAGES:=$(shell go list ./... | grep -v $(ALL_PKGS_EXCLUDE_PATTERN)))
-	AUTH_DEVELOPER_MODE_ENABLED=1 AUTH_RESOURCE_DATABASE=1 AUTH_RESOURCE_UNIT_TEST=0 F8_LOG_LEVEL=$(F8_LOG_LEVEL) go test -vet off $(GO_TEST_VERBOSITY_FLAG) $(TEST_PACKAGES)
+	F8_DEVELOPER_MODE_ENABLED=1 F8_RESOURCE_DATABASE=1 F8_RESOURCE_UNIT_TEST=0 F8_LOG_LEVEL=$(F8_LOG_LEVEL) go test -vet off $(GO_TEST_VERBOSITY_FLAG) $(TEST_PACKAGES)
 
 test-integration-benchmark: prebuild-check migrate-database $(SOURCES)
 	$(call log-info,"Running benchmarks: $@")
 	$(eval TEST_PACKAGES:=$(shell go list ./... | grep -v $(ALL_PKGS_EXCLUDE_PATTERN)))
-	AUTH_DEVELOPER_MODE_ENABLED=1 AUTH_LOG_LEVEL=error AUTH_RESOURCE_DATABASE=1 AUTH_RESOURCE_UNIT_TEST=0 F8_LOG_LEVEL=$(F8_LOG_LEVEL) go test -vet off -run=^$$ -bench=. -cpu 1,2,4 -test.benchmem $(GO_TEST_VERBOSITY_FLAG) $(TEST_PACKAGES)
+	F8_DEVELOPER_MODE_ENABLED=1 F8_LOG_LEVEL=error F8_RESOURCE_DATABASE=1 F8_RESOURCE_UNIT_TEST=0 F8_LOG_LEVEL=$(F8_LOG_LEVEL) go test -vet off -run=^$$ -bench=. -cpu 1,2,4 -test.benchmem $(GO_TEST_VERBOSITY_FLAG) $(TEST_PACKAGES)
 
 .PHONY: test-remote-with-coverage
 ## Runs the remote tests and produces coverage files for each package.
@@ -186,13 +186,13 @@ test-remote-with-coverage: prebuild-check clean-coverage-remote $(COV_PATH_REMOT
 test-remote: prebuild-check $(SOURCES)
 	$(call log-info,"Running test: $@")
 	$(eval TEST_PACKAGES:=$(shell go list ./... | grep -v $(ALL_PKGS_EXCLUDE_PATTERN)))
-	AUTH_DEVELOPER_MODE_ENABLED=1 AUTH_RESOURCE_REMOTE=1 AUTH_RESOURCE_UNIT_TEST=0 F8_LOG_LEVEL=$(F8_LOG_LEVEL) go test -vet off $(GO_TEST_VERBOSITY_FLAG) $(TEST_PACKAGES)
+	F8_DEVELOPER_MODE_ENABLED=1 F8_RESOURCE_REMOTE=1 F8_RESOURCE_UNIT_TEST=0 F8_LOG_LEVEL=$(F8_LOG_LEVEL) go test -vet off $(GO_TEST_VERBOSITY_FLAG) $(TEST_PACKAGES)
 
 .PHONY: test-migration
 ## Runs the migration tests and should be executed before running the integration tests
 ## in order to have a clean database
 test-migration: prebuild-check
-	AUTH_RESOURCE_DATABASE=1 F8_LOG_LEVEL=$(F8_LOG_LEVEL) go test -vet off $(GO_TEST_VERBOSITY_FLAG) github.com/fabric8-services/fabric8-auth/migration
+	F8_RESOURCE_DATABASE=1 F8_LOG_LEVEL=$(F8_LOG_LEVEL) go test -vet off $(GO_TEST_VERBOSITY_FLAG) github.com/fabric8-services/admin-console/migration
 
 # Downloads docker-compose to tmp/docker-compose if it does not already exist.
 define download-docker-compose
@@ -428,7 +428,7 @@ $(eval ENV_VAR := $(5))
 $(eval ALL_PKGS_COMMA_SEPARATED := $(6))
 @mkdir -p $(COV_DIR)/$(PACKAGE_NAME);
 $(eval COV_OUT_FILE := $(COV_DIR)/$(PACKAGE_NAME)/coverage.$(TEST_NAME).mode-$(COVERAGE_MODE))
-@$(ENV_VAR) AUTH_DEVELOPER_MODE_ENABLED=1 AUTH_POSTGRES_HOST=$(AUTH_POSTGRES_HOST) F8_LOG_LEVEL=$(F8_LOG_LEVEL) \
+@$(ENV_VAR) F8_DEVELOPER_MODE_ENABLED=1 F8_POSTGRES_HOST=$(F8_POSTGRES_HOST) F8_LOG_LEVEL=$(F8_LOG_LEVEL) \
 	go test -vet off $(PACKAGE_NAME) \
 		$(GO_TEST_VERBOSITY_FLAG) \
 		-coverprofile $(COV_OUT_FILE) \
@@ -488,7 +488,7 @@ $(COV_PATH_INTEGRATION): $(SOURCES) $(GOCOVMERGE_BIN)
 	@-rm -f $(ERRORS_FILE)
 	$(eval TEST_PACKAGES:=$(shell go list ./... | grep -v $(ALL_PKGS_EXCLUDE_PATTERN)))
 	$(eval ALL_PKGS_COMMA_SEPARATED:=$(shell echo $(TEST_PACKAGES)  | tr ' ' ,))
-	$(foreach package, $(TEST_PACKAGES), $(call test-package,$(TEST_NAME),$(package),$(COV_PATH_INTEGRATION),$(ERRORS_FILE),AUTH_RESOURCE_DATABASE=1 AUTH_RESOURCE_UNIT_TEST=0,$(ALL_PKGS_COMMA_SEPARATED)))
+	$(foreach package, $(TEST_PACKAGES), $(call test-package,$(TEST_NAME),$(package),$(COV_PATH_INTEGRATION),$(ERRORS_FILE),F8_RESOURCE_DATABASE=1 F8_RESOURCE_UNIT_TEST=0,$(ALL_PKGS_COMMA_SEPARATED)))
 	$(call check-test-results,$(ERRORS_FILE))
 
 # NOTE: We don't have prebuild-check as a dependency here because it would cause
