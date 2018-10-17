@@ -135,11 +135,6 @@ func getMainConfigFile() string {
 	return envConfigPath
 }
 
-func getServiceAccountConfigFile() string {
-	envServiceAccountConfigFile, _ := os.LookupEnv("ADMIN_SERVICE_ACCOUNT_CONFIG_FILE")
-	return envServiceAccountConfigFile
-}
-
 // DefaultConfigurationError returns an error if the default values is used
 // for sensitive configuration like service account secrets or private keys.
 // Error contains all the details.

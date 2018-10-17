@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"net/http"
 	"os"
@@ -56,7 +57,7 @@ func main() {
 
 	config, err := configuration.New(configFilePath)
 	if err != nil {
-		log.Panic(nil, map[string]interface{}{
+		log.Panic(context.TODO(), map[string]interface{}{
 			"config_file_path": configFilePath,
 			"err":              err,
 		}, "failed to setup the configuration")
@@ -98,7 +99,7 @@ func main() {
 		sentry.WithEnvironment(config.GetEnvironment()),
 	)
 	if err != nil {
-		log.Panic(nil, map[string]interface{}{
+		log.Panic(context.TODO(), map[string]interface{}{
 			"err": err,
 		}, "failed to setup the sentry client")
 	}
@@ -141,7 +142,7 @@ func main() {
 		log.Logger().Infoln("Diagnose:       ", config.GetDiagnoseHTTPAddress())
 		// Start diagnostic http
 		if err := agent.Listen(agent.Options{Addr: config.GetDiagnoseHTTPAddress(), ConfigDir: "/tmp/gops/"}); err != nil {
-			log.Error(nil, map[string]interface{}{
+			log.Error(context.TODO(), map[string]interface{}{
 				"addr": config.GetDiagnoseHTTPAddress(),
 				"err":  err,
 			}, "unable to connect to diagnose server")

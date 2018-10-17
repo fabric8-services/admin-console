@@ -242,6 +242,17 @@
   revision = "ae77be60afb1dcacde03767a8c37337fad28ac14"
 
 [[projects]]
+  digest = "1:8ef506fc2bb9ced9b151dafa592d4046063d744c646c1bbe801982ce87e4bc24"
+  name = "github.com/lib/pq"
+  packages = [
+    ".",
+    "oid",
+  ]
+  pruneopts = "UT"
+  revision = "4ded0e9383f75c197b3a2aaa6d590ac52df6fd79"
+  version = "v1.0.0"
+
+[[projects]]
   digest = "1:c568d7727aa262c32bdf8a3f7db83614f7af0ed661474b24588de635c20024c7"
   name = "github.com/magiconair/properties"
   packages = ["."]
@@ -517,7 +528,6 @@
   analyzer-version = 1
   input-imports = [
     "github.com/davecgh/go-spew/spew",
-    "github.com/fabric8-services/fabric8-common/configuration",
     "github.com/fabric8-services/fabric8-common/errors",
     "github.com/fabric8-services/fabric8-common/goasupport/jsonapi_errors_helpers",
     "github.com/fabric8-services/fabric8-common/goasupport/status",
@@ -545,6 +555,7 @@
     "github.com/golang/lint/golint",
     "github.com/google/gops/agent",
     "github.com/jinzhu/gorm",
+    "github.com/lib/pq",
     "github.com/pilu/fresh",
     "github.com/pkg/errors",
     "github.com/prometheus/client_golang/prometheus",
