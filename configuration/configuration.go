@@ -129,16 +129,6 @@ func (c *Configuration) appendDefaultConfigErrorMessage(message string) {
 	}
 }
 
-func pathExists(pathToCheck string) (string, error) {
-	_, err := os.Stat(pathToCheck)
-	if err == nil {
-		return pathToCheck, nil
-	} else if !os.IsNotExist(err) {
-		return "", err
-	}
-	return "", nil
-}
-
 func getMainConfigFile() string {
 	// This was either passed as a env var or set inside main.go from --config
 	envConfigPath, _ := os.LookupEnv("ADMIN_CONFIG_FILE_PATH")
