@@ -166,7 +166,10 @@ check-go-format: prebuild-check deps ## Exists with an error if there are files 
 	|| true
 
 .PHONY: analyze-go-code 
-analyze-go-code: deps golint gocyclo govet ## Run a complete static code analysis using the following tools: golint, gocyclo and go-vet.
+analyze-go-code: deps generate ## Run golangci analysis over the code.
+	$(info >>--- RESULTS: GOLANGCI CODE ANALYSIS ---<<)
+	@go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
+	@golangci-lint run
 
 ## Run gocyclo analysis over the code.
 golint: $(GOLINT_BIN)
