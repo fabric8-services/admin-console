@@ -6,10 +6,11 @@ import (
 	"os"
 	"os/user"
 	"runtime"
+	"time"
 
 	"github.com/fabric8-services/admin-console/app"
+	"github.com/fabric8-services/admin-console/configuration"
 	"github.com/fabric8-services/admin-console/controller"
-	"github.com/fabric8-services/fabric8-common/configuration"
 	"github.com/fabric8-services/fabric8-common/log"
 	"github.com/fabric8-services/fabric8-common/metric"
 	"github.com/fabric8-services/fabric8-common/sentry"
@@ -18,8 +19,11 @@ import (
 	"github.com/goadesign/goa/middleware"
 	"github.com/goadesign/goa/middleware/gzip"
 	"github.com/google/gops/agent"
+	"github.com/jinzhu/gorm"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+
+	_ "github.com/lib/pq"
 )
 
 func main() {
@@ -62,13 +66,30 @@ func main() {
 		os.Exit(0)
 	}
 
+	// Initialized developer mode flag and log level for the logger
+	log.InitializeLogger(config.IsLogJSON(), config.GetLogLevel())
+
 	// Nothing to here except exit, since the migration is already performed.
 	if migrateDB {
 		os.Exit(0)
 	}
 
-	// Initialized developer mode flag and log level for the logger
-	log.InitializeLogger(config.IsLogJSON(), config.GetLogLevel())
+	var db *gorm.DB
+	for {
+		log.Logger().Debugf("opening a connection to %s", config.GetPostgresConfigString())
+		db, err = gorm.Open("postgres", config.GetPostgresConfigString())
+		if err != nil {
+			log.Logger().Errorf("ERROR: Unable to open connection to database %v", err)
+			log.Logger().Infof("Retrying to connect in %v...", config.GetPostgresConnectionRetrySleep())
+			if db != nil {
+				db.Close()
+			}
+			time.Sleep(config.GetPostgresConnectionRetrySleep())
+		} else {
+			defer db.Close()
+			break
+		}
+	}
 
 	// Initialize sentry client
 	haltSentry, err := sentry.InitializeSentryClient(
