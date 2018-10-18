@@ -326,7 +326,7 @@ func (c *Configuration) IsDBLogsEnabled() bool {
 	return c.v.GetBool(varDBLogsEnabled)
 }
 
-// GetSentryDSN returns the secret needed to securely communicate with https://errortracking.prod-preview.openshift.io/openshift_io/fabric8-auth/
+// GetSentryDSN returns the secret needed to securely communicate with https://errortracking.prod-preview.openshift.io/openshift_io/admin-console
 func (c *Configuration) GetSentryDSN() string {
 	return c.v.GetString(varSentryDSN)
 }

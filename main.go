@@ -12,6 +12,7 @@ import (
 	"github.com/fabric8-services/admin-console/app"
 	"github.com/fabric8-services/admin-console/configuration"
 	"github.com/fabric8-services/admin-console/controller"
+	"github.com/fabric8-services/fabric8-common/closeable"
 	"github.com/fabric8-services/fabric8-common/log"
 	"github.com/fabric8-services/fabric8-common/metric"
 	"github.com/fabric8-services/fabric8-common/sentry"
@@ -77,17 +78,14 @@ func main() {
 
 	var db *gorm.DB
 	for {
-		log.Logger().Debugf("opening a connection to %s", config.GetPostgresConfigString())
 		db, err = gorm.Open("postgres", config.GetPostgresConfigString())
 		if err != nil {
 			log.Logger().Errorf("ERROR: Unable to open connection to database %v", err)
+			closeable.Close(context.TODO(), db)
 			log.Logger().Infof("Retrying to connect in %v...", config.GetPostgresConnectionRetrySleep())
-			if db != nil {
-				db.Close()
-			}
 			time.Sleep(config.GetPostgresConnectionRetrySleep())
 		} else {
-			defer db.Close()
+			defer closeable.Close(context.TODO(), db)
 			break
 		}
 	}

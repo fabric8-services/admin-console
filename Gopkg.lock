@@ -66,10 +66,10 @@
   version = "v5.0.1"
 
 [[projects]]
-  branch = "master"
-  digest = "1:63bcb367ba547147f54da7eedce2bcd8c96955e1416313fedd0b53dec5c08533"
+  digest = "1:d8e609b9f2e0b5c6142cf13fbce8a95336f114a6d595e7add2e4196195f40c64"
   name = "github.com/fabric8-services/fabric8-common"
   packages = [
+    "closeable",
     "configuration",
     "errors",
     "goasupport/jsonapi_errors_helpers",
@@ -79,7 +79,7 @@
     "sentry",
   ]
   pruneopts = "UT"
-  revision = "13443074c10b54b60327441aa49dc321d5cac6b8"
+  revision = "441f5274bd64fdbf3d1d0eebd40dbb61f630807d"
 
 [[projects]]
   digest = "1:abeb38ade3f32a92943e5be54f55ed6d6e3b6602761d74b4aab4c9dd45c18abd"
@@ -98,11 +98,11 @@
   revision = "6acd4345c835499920e8426c7e4e8d7a34f1bb83"
 
 [[projects]]
-  digest = "1:71243e78cbf1b8d5466314f0fc612b2aecc178085fb5416a7e72b0be1583d812"
+  digest = "1:64ef2c2f0f508690f06c1b009e1e3103441ce60c2db0323ff94d8d1c560ec10b"
   name = "github.com/getsentry/raven-go"
   packages = ["."]
   pruneopts = "UT"
-  revision = "master"
+  revision = "084a9de9eb0361fbd5ded14b55c84e5493a5d7f6"
 
 [[projects]]
   digest = "1:1b6bcf7a8dcf2c0c155dc491ba0f49556cbec498676418555e1ee66b04edf68f"
@@ -528,6 +528,7 @@
   analyzer-version = 1
   input-imports = [
     "github.com/davecgh/go-spew/spew",
+    "github.com/fabric8-services/fabric8-common/closeable",
     "github.com/fabric8-services/fabric8-common/errors",
     "github.com/fabric8-services/fabric8-common/goasupport/jsonapi_errors_helpers",
     "github.com/fabric8-services/fabric8-common/goasupport/status",
