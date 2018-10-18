@@ -247,7 +247,7 @@ clean: $(CLEAN_TARGETS) ## Runs all clean-* targets.
 # -------------------------------------------------------------------
 .PHONY: dev
 dev: prebuild-check deps generate $(FRESH_BIN) ## run the server locally
-	ADMIN_CONFIG_FILE_PATH=config.yaml ADMIN_DEVELOPER_MODE_ENABLED=true $(FRESH_BIN)
+	ADMIN_DEVELOPER_MODE_ENABLED=true $(FRESH_BIN)
 
 # -------------------------------------------------------------------
 # build the binary executable (to ship in prod)
