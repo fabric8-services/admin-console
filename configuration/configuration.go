@@ -32,7 +32,6 @@ const (
 	// default values as well as to get each value
 
 	// General
-	defaultConfigFile       = "config.yaml"
 	varHTTPAddress          = "http.address"
 	varHeaderMaxLength      = "header.maxlength"
 	varMetricsHTTPAddress   = "metrics.http.address"
@@ -74,7 +73,7 @@ type Configuration struct {
 }
 
 // New creates a configuration reader object using configurable configuration file paths
-func New(mainConfigFile string) (*Configuration, error) {
+func New() (*Configuration, error) {
 	c := &Configuration{
 		v: viper.New(),
 	}
@@ -85,15 +84,6 @@ func New(mainConfigFile string) (*Configuration, error) {
 	c.v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	c.v.SetTypeByDefaultValue(true)
 	c.setConfigDefaults()
-
-	if mainConfigFile != "" {
-		c.v.SetConfigType("yaml")
-		c.v.SetConfigFile(mainConfigFile)
-		err := c.v.ReadInConfig() // Find and read the config file
-		if err != nil {           // Handle errors reading the config file
-			return nil, errors.Errorf("Fatal error config file: %s \n", err)
-		}
-	}
 
 	// Check sensitive default configuration
 	if c.IsDeveloperModeEnabled() {
@@ -150,17 +140,6 @@ func (c *Configuration) DefaultConfigurationError() error {
 // GetAuthServiceURL returns Auth Service URL
 func (c *Configuration) GetAuthServiceURL() string {
 	return c.v.GetString(varAuthURL)
-}
-
-// GetDefaultConfigurationFile returns the default configuration file.
-func (c *Configuration) GetDefaultConfigurationFile() string {
-	return defaultConfigFile
-}
-
-// GetConfiguration is a wrapper over NewConfiguration which reads configuration file path
-// from the environment variable.
-func GetConfiguration() (*Configuration, error) {
-	return New(getMainConfigFile())
 }
 
 func (c *Configuration) setConfigDefaults() {

@@ -135,11 +135,11 @@ GOANALYSIS_DIRS=$(shell go list -f {{.Dir}} ./... | grep -v -E $(GOANALYSIS_PKGS
 #-------------------------------------------------------------------------------
 
 .PHONY: test-all
-## Runs test-unit, test-integration, and test-remote targets.
+# Runs test-unit, test-integration, and test-remote targets.
 test-all: prebuild-check test-unit test-integration test-remote
 
 .PHONY: test-unit-with-coverage
-## Runs the unit tests and produces coverage files for each package.
+# Runs the unit tests and produces coverage files for each package.
 test-unit-with-coverage: prebuild-check clean-coverage-unit $(COV_PATH_UNIT)
 
 .PHONY: test-unit
@@ -153,20 +153,14 @@ test-unit: prebuild-check $(SOURCES)
 test-unit-junit: prebuild-check ${GO_JUNIT_BIN} ${TMP_PATH}
 	bash -c "set -o pipefail; make test-unit 2>&1 | tee >(${GO_JUNIT_BIN} > ${TMP_PATH}/junit.xml)"
  
-## Compiles the server and runs the database migration with it
-migrate-database: $(SERVER_BIN)
-	@echo "running database migration..."
-	$(SERVER_BIN) -migrateDatabase
-.PHONY: migrate-database
-
 .PHONY: test-integration-with-coverage
-## Runs the integration tests and produces coverage files for each package.
-## Make sure you ran "make integration-test-env-prepare" before you run this target.
+# Runs the integration tests and produces coverage files for each package.
+# Make sure you ran "make integration-test-env-prepare" before you run this target.
 test-integration-with-coverage: prebuild-check clean-coverage-integration migrate-database $(COV_PATH_INTEGRATION)
 
 .PHONY: test-integration
 ## Runs the integration tests WITHOUT producing coverage files for each package.
-## Make sure you ran "make integration-test-env-prepare" before you run this target.
+## (Make sure you ran "make integration-test-env-prepare" before you run this target.)
 test-integration: prebuild-check migrate-database $(SOURCES)
 	$(call log-info,"Running test: $@")
 	$(eval TEST_PACKAGES:=$(shell go list ./... | grep -v $(ALL_PKGS_EXCLUDE_PATTERN)))
@@ -178,11 +172,11 @@ test-integration-benchmark: prebuild-check migrate-database $(SOURCES)
 	ADMIN_DEVELOPER_MODE_ENABLED=1 ADMIN_LOG_LEVEL=error ADMIN_RESOURCE_DATABASE=1 ADMIN_RESOURCE_UNIT_TEST=0 ADMIN_LOG_LEVEL=$(ADMIN_LOG_LEVEL) go test -vet off -run=^$$ -bench=. -cpu 1,2,4 -test.benchmem $(GO_TEST_VERBOSITY_FLAG) $(TEST_PACKAGES)
 
 .PHONY: test-remote-with-coverage
-## Runs the remote tests and produces coverage files for each package.
+# Runs the remote tests and produces coverage files for each package.
 test-remote-with-coverage: prebuild-check clean-coverage-remote $(COV_PATH_REMOTE)
 
 .PHONY: test-remote
-## Runs the tests which reqire availability of some remote servers WITHOUT producing coverage files for each package.
+# Runs the tests which reqire availability of some remote servers WITHOUT producing coverage files for each package.
 test-remote: prebuild-check $(SOURCES)
 	$(call log-info,"Running test: $@")
 	$(eval TEST_PACKAGES:=$(shell go list ./... | grep -v $(ALL_PKGS_EXCLUDE_PATTERN)))
@@ -207,8 +201,8 @@ define download-docker-compose
 endef
 
 .PHONY: integration-test-env-prepare
-## Prepares all services needed to run the integration tests.
-## If not already available, this target will download docker-compose (on Linux).
+# Prepares all services needed to run the integration tests.
+# If not already available, this target will download docker-compose (on Linux).
 integration-test-env-prepare:
 ifdef DOCKER_COMPOSE_BIN
 	@$(DOCKER_COMPOSE_BIN) -f $(DOCKER_COMPOSE_FILE) up -d
@@ -222,7 +216,7 @@ endif
 endif
 
 .PHONY: integration-test-env-tear-down
-## Tears down all services needed to run the integration tests
+# Tears down all services needed to run the integration tests
 integration-test-env-tear-down:
 ifdef DOCKER_COMPOSE_BIN
 	@$(DOCKER_COMPOSE_BIN) -f $(DOCKER_COMPOSE_FILE) down
@@ -305,32 +299,32 @@ define cleanup-coverage-file
 endef
 
 .PHONY: coverage-unit
-## Output coverage profile information for each function (only based on unit-tests).
-## Re-runs unit-tests if coverage information is outdated.
+# Output coverage profile information for each function (only based on unit-tests).
+# Re-runs unit-tests if coverage information is outdated.
 coverage-unit: prebuild-check $(COV_PATH_UNIT)
 	$(call cleanup-coverage-file,$(COV_PATH_UNIT))
 	@go tool cover -func=$(COV_PATH_UNIT)
 	$(call package-coverage,unit)
 
 .PHONY: coverage-integration
-## Output coverage profile information for each function (only based on integration tests).
-## Re-runs integration-tests if coverage information is outdated.
+# Output coverage profile information for each function (only based on integration tests).
+# Re-runs integration-tests if coverage information is outdated.
 coverage-integration: prebuild-check $(COV_PATH_INTEGRATION)
 	$(call cleanup-coverage-file,$(COV_PATH_INTEGRATION))
 	@go tool cover -func=$(COV_PATH_INTEGRATION)
 	$(call package-coverage,integration)
 
 .PHONY: coverage-remote
-## Output coverage profile information for each function (only based on remote-tests).
-## Re-runs remote-tests if coverage information is outdated.
+# Output coverage profile information for each function (only based on remote-tests).
+# Re-runs remote-tests if coverage information is outdated.
 coverage-remote: prebuild-check $(COV_PATH_REMOTE)
 	$(call cleanup-coverage-file,$(COV_PATH_REMOTE))
 	@go tool cover -func=$(COV_PATH_REMOTE)
 	$(call package-coverage,remote)
 
 .PHONY: coverage-all
-## Output coverage profile information for each function.
-## Re-runs unit-, integration- and remote-tests if coverage information is outdated.
+# Output coverage profile information for each function.
+# Re-runs unit-, integration- and remote-tests if coverage information is outdated.
 coverage-all: prebuild-check clean-coverage-overall $(COV_PATH_OVERALL)
 	$(call cleanup-coverage-file,$(COV_PATH_OVERALL))
 	@go tool cover -func=$(COV_PATH_OVERALL)
@@ -339,29 +333,29 @@ coverage-all: prebuild-check clean-coverage-overall $(COV_PATH_OVERALL)
 # HTML coverage output:
 
 .PHONY: coverage-unit-html
-## Generate HTML representation (and show in browser) of coverage profile (based on unit tests).
-## Re-runs unit tests if coverage information is outdated.
+# Generate HTML representation (and show in browser) of coverage profile (based on unit tests).
+# Re-runs unit tests if coverage information is outdated.
 coverage-unit-html: prebuild-check $(COV_PATH_UNIT)
 	$(call cleanup-coverage-file,$(COV_PATH_UNIT))
 	@go tool cover -html=$(COV_PATH_UNIT)
 
 .PHONY: coverage-integration-html
-## Generate HTML representation (and show in browser) of coverage profile (based on integration tests).
-## Re-runs integration tests if coverage information is outdated.
+# Generate HTML representation (and show in browser) of coverage profile (based on integration tests).
+# Re-runs integration tests if coverage information is outdated.
 coverage-integration-html: prebuild-check $(COV_PATH_INTEGRATION)
 	$(call cleanup-coverage-file,$(COV_PATH_INTEGRATION))
 	@go tool cover -html=$(COV_PATH_INTEGRATION)
 
 .PHONY: coverage-remote-html
-## Generate HTML representation (and show in browser) of coverage profile (based on remote tests).
-## Re-runs remote tests if coverage information is outdated.
+# Generate HTML representation (and show in browser) of coverage profile (based on remote tests).
+# Re-runs remote tests if coverage information is outdated.
 coverage-remote-html: prebuild-check $(COV_PATH_REMOTE)
 	$(call cleanup-coverage-file,$(COV_PATH_REMOTE))
 	@go tool cover -html=$(COV_PATH_REMOTE)
 
 .PHONY: coverage-all-html
-## Output coverage profile information for each function.
-## Re-runs unit-, integration- and remote-tests if coverage information is outdated.
+# Output coverage profile information for each function.
+# Re-runs unit-, integration- and remote-tests if coverage information is outdated.
 coverage-all-html: prebuild-check clean-coverage-overall $(COV_PATH_OVERALL)
 	$(call cleanup-coverage-file,$(COV_PATH_OVERALL))
 	@go tool cover -html=$(COV_PATH_OVERALL)
@@ -369,8 +363,8 @@ coverage-all-html: prebuild-check clean-coverage-overall $(COV_PATH_OVERALL)
 # Experimental:
 
 .PHONY: gocov-unit-annotate
-## (EXPERIMENTAL) Show actual code and how it is covered with unit tests.
-##                This target only runs the tests if the coverage file does exist.
+# (EXPERIMENTAL) Show actual code and how it is covered with unit tests.
+#                This target only runs the tests if the coverage file does exist.
 gocov-unit-annotate: prebuild-check $(GOCOV_BIN) $(COV_PATH_UNIT)
 	$(call cleanup-coverage-file,$(COV_PATH_UNIT))
 	@$(GOCOV_BIN) convert $(COV_PATH_UNIT) | $(GOCOV_BIN) annotate -
@@ -381,8 +375,8 @@ gocov-unit-annotate: prebuild-check $(GOCOV_BIN) $(COV_PATH_UNIT)
 	@$(GOCOV_BIN) convert $(COV_PATH_UNIT) | $(GOCOV_BIN) report
 
 .PHONY: gocov-integration-annotate
-## (EXPERIMENTAL) Show actual code and how it is covered with integration tests.
-##                This target only runs the tests if the coverage file does exist.
+# (EXPERIMENTAL) Show actual code and how it is covered with integration tests.
+#                This target only runs the tests if the coverage file does exist.
 gocov-integration-annotate: prebuild-check $(GOCOV_BIN) $(COV_PATH_INTEGRATION)
 	$(call cleanup-coverage-file,$(COV_PATH_INTEGRATION))
 	@$(GOCOV_BIN) convert $(COV_PATH_INTEGRATION) | $(GOCOV_BIN) annotate -
@@ -393,8 +387,8 @@ gocov-integration-annotate: prebuild-check $(GOCOV_BIN) $(COV_PATH_INTEGRATION)
 	@$(GOCOV_BIN) convert $(COV_PATH_INTEGRATION) | $(GOCOV_BIN) report
 
 .PHONY: gocov-remote-annotate
-## (EXPERIMENTAL) Show actual code and how it is covered with remote tests.
-##                This target only runs the tests if the coverage file does exist.
+# (EXPERIMENTAL) Show actual code and how it is covered with remote tests.
+#                This target only runs the tests if the coverage file does exist.
 gocov-remote-annotate: prebuild-check $(GOCOV_BIN) $(COV_PATH_REMOTE)
 	$(call cleanup-coverage-file,$(COV_PATH_REMOTE))
 	@$(GOCOV_BIN) convert $(COV_PATH_REMOTE) | $(GOCOV_BIN) annotate -
@@ -521,30 +515,30 @@ $(GOCOVMERGE_BIN): prebuild-check
 
 CLEAN_TARGETS += clean-coverage
 .PHONY: clean-coverage
-## Removes all coverage files
+# Removes all coverage files
 clean-coverage: clean-coverage-unit clean-coverage-integration clean-coverage-remote clean-coverage-overall
 	-@rm -rf $(COV_DIR)
 
 CLEAN_TARGETS += clean-coverage-overall
 .PHONY: clean-coverage-overall
-## Removes overall coverage file
+# Removes overall coverage file
 clean-coverage-overall:
 	-@rm -f $(COV_PATH_OVERALL)
 
 CLEAN_TARGETS += clean-coverage-unit
 .PHONY: clean-coverage-unit
-## Removes unit test coverage file
+# Removes unit test coverage file
 clean-coverage-unit:
 	-@rm -f $(COV_PATH_UNIT)
 
 CLEAN_TARGETS += clean-coverage-integration
 .PHONY: clean-coverage-integration
-## Removes integration test coverage file
+# Removes integration test coverage file
 clean-coverage-integration:
 	-@rm -f $(COV_PATH_INTEGRATION)
 
 CLEAN_TARGETS += clean-coverage-remote
 .PHONY: clean-coverage-remote
-## Removes remote test coverage file
+# Removes remote test coverage file
 clean-coverage-remote:
 	-@rm -f $(COV_PATH_REMOTE)

@@ -66,20 +66,23 @@
   version = "v5.0.1"
 
 [[projects]]
-  digest = "1:d8e609b9f2e0b5c6142cf13fbce8a95336f114a6d595e7add2e4196195f40c64"
+  digest = "1:e4466c8454b97d77f5045e6295c4241cd0d4b4bf7acd74a57c451d8411b2bb35"
   name = "github.com/fabric8-services/fabric8-common"
   packages = [
     "closeable",
     "configuration",
+    "convert",
     "errors",
     "goasupport/jsonapi_errors_helpers",
     "goasupport/status",
+    "gormsupport/cleaner",
     "log",
     "metric",
+    "resource",
     "sentry",
   ]
   pruneopts = "UT"
-  revision = "441f5274bd64fdbf3d1d0eebd40dbb61f630807d"
+  revision = "92bdd856cc7d5a8f01c5185ca4e290f024346892"
 
 [[projects]]
   digest = "1:abeb38ade3f32a92943e5be54f55ed6d6e3b6602761d74b4aab4c9dd45c18abd"
@@ -234,6 +237,16 @@
   revision = "04140366298a54a039076d798123ffa108fff46c"
 
 [[projects]]
+  digest = "1:611cdcd3bd9781ebe9ea11d21edbb71528ad75bf3ff76fc41897f20b4c787d98"
+  name = "github.com/jteeuwen/go-bindata"
+  packages = [
+    ".",
+    "go-bindata",
+  ]
+  pruneopts = "UT"
+  revision = "v3.0.7"
+
+[[projects]]
   branch = "master"
   digest = "1:caf6db28595425c0e0f2301a00257d11712f65c1878e12cffc42f6b9a9cf3f23"
   name = "github.com/kardianos/osext"
@@ -334,6 +347,14 @@
   pruneopts = "UT"
   revision = "645ef00459ed84a119197bfb8d8205042c6df63d"
   version = "v0.8.0"
+
+[[projects]]
+  digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
+  name = "github.com/pmezard/go-difflib"
+  packages = ["difflib"]
+  pruneopts = "UT"
+  revision = "792786c7400a136282c1664665ae0a8db921c6c2"
+  version = "v1.0.0"
 
 [[projects]]
   digest = "1:d14a5f4bfecf017cb780bdde1b6483e5deb87e12c332544d2c430eda58734bcb"
@@ -447,6 +468,18 @@
   version = "v1.2.0"
 
 [[projects]]
+  digest = "1:5110e3d4f130772fd39e6ce8208ad1955b242ccfcc8ad9d158857250579c82f4"
+  name = "github.com/stretchr/testify"
+  packages = [
+    "assert",
+    "require",
+    "suite",
+  ]
+  pruneopts = "UT"
+  revision = "f35b8ab0b5a2cef36673838d662e249dd9c94686"
+  version = "v1.2.2"
+
+[[projects]]
   branch = "master"
   digest = "1:7bff42fbbef28d0ef60138c92cb3872cacb035133b3cfa39e3ff2c43f1fc332e"
   name = "github.com/wadey/gocovmerge"
@@ -529,14 +562,18 @@
   input-imports = [
     "github.com/davecgh/go-spew/spew",
     "github.com/fabric8-services/fabric8-common/closeable",
+    "github.com/fabric8-services/fabric8-common/convert",
     "github.com/fabric8-services/fabric8-common/errors",
     "github.com/fabric8-services/fabric8-common/goasupport/jsonapi_errors_helpers",
     "github.com/fabric8-services/fabric8-common/goasupport/status",
+    "github.com/fabric8-services/fabric8-common/gormsupport/cleaner",
     "github.com/fabric8-services/fabric8-common/log",
     "github.com/fabric8-services/fabric8-common/metric",
+    "github.com/fabric8-services/fabric8-common/resource",
     "github.com/fabric8-services/fabric8-common/sentry",
     "github.com/fzipp/gocyclo",
     "github.com/goadesign/goa",
+    "github.com/goadesign/goa/client",
     "github.com/goadesign/goa/cors",
     "github.com/goadesign/goa/design",
     "github.com/goadesign/goa/design/apidsl",
@@ -556,13 +593,18 @@
     "github.com/golang/lint/golint",
     "github.com/google/gops/agent",
     "github.com/jinzhu/gorm",
+    "github.com/jteeuwen/go-bindata/go-bindata",
     "github.com/lib/pq",
     "github.com/pilu/fresh",
     "github.com/pkg/errors",
     "github.com/prometheus/client_golang/prometheus",
     "github.com/prometheus/client_golang/prometheus/promhttp",
+    "github.com/satori/go.uuid",
     "github.com/sirupsen/logrus",
     "github.com/spf13/viper",
+    "github.com/stretchr/testify/assert",
+    "github.com/stretchr/testify/require",
+    "github.com/stretchr/testify/suite",
     "github.com/wadey/gocovmerge",
     "gopkg.in/yaml.v2",
   ]

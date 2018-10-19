@@ -39,20 +39,20 @@ docker-image-deploy:
 	docker build -t $(DOCKER_IMAGE_DEPLOY) -f $(CUR_DIR)/$(DOCKERFILE_DEPLOY) $(CUR_DIR)
 
 .PHONY: docker-publish-deploy
-## Tags the runnable image and pushes it to the docker hub.
+# Tags the runnable image and pushes it to the docker hub.
 docker-publish-deploy:
 	docker tag $(DOCKER_IMAGE_DEPLOY) fabric8-services/fabric8-auth:latest
 	docker push fabric8-services/fabric8-auth:latest
 
 .PHONY: docker-build-dir
-## Creates the docker build directory.
+# Creates the docker build directory.
 docker-build-dir:
 	@echo "Creating build directory $(BUILD_DIR)"
 	mkdir -p $(DOCKER_BUILD_DIR)
 
 CLEAN_TARGETS += clean-docker-build-container
 .PHONY: clean-docker-build-container
-## Removes any existing container used to build the software (if any).
+# Removes any existing container used to build the software (if any).
 clean-docker-build-container:
 	@echo "Removing container named \"$(DOCKER_CONTAINER_NAME)\" (if any)"
 ifneq ($(strip $(shell docker ps -qa --filter "name=$(DOCKER_CONTAINER_NAME)" 2>/dev/null)),)
@@ -63,7 +63,7 @@ endif
 
 CLEAN_TARGETS += clean-docker-build-dir
 .PHONY: clean-docker-build-dir
-## Removes the docker build directory.
+# Removes the docker build directory.
 clean-docker-build-dir:
 	@echo "Cleaning build directory $(BUILD_DIR)"
 	-rm -rf $(DOCKER_BUILD_DIR)
@@ -94,7 +94,7 @@ else
 endif
 
 .PHONY: docker-rm
-## Removes the docker build container, if any (see "make docker-start").
+# Removes the docker build container, if any (see "make docker-start").
 docker-rm:
 ifneq ($(strip $(shell docker ps -qa --filter "name=$(DOCKER_CONTAINER_NAME)" 2>/dev/null)),)
 	docker rm -f "$(DOCKER_CONTAINER_NAME)"
