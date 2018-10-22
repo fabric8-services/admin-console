@@ -269,7 +269,7 @@ migrate-database: $(SERVER_BIN) sqlbindata
 	$(SERVER_BIN) -migrateDatabase
 
 .PHONY: sqlbindata
-sqlbindata: migration/sqlbindata.go migration/sqlbindata_test.go
+sqlbindata: migration/sqlbindata.go 
 
 # Pack all migration SQL files into a compilable Go file
 migration/sqlbindata.go: $(GO_BINDATA_BIN)
@@ -280,7 +280,7 @@ migration/sqlbindata.go: $(GO_BINDATA_BIN)
 		-nocompress \
 		migration/sql-files
 
-migration/sqlbindata_test.go: $(GO_BINDATA_BIN)
+migration/sqlbindata_test.go: $(GO_BINDATA_BIN) # unused for now
 	$(GO_BINDATA_BIN) \
 		-o migration/sqlbindata_test.go \
 		-pkg migration_test \
