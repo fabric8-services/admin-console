@@ -21,7 +21,7 @@ func (d migrateData) Asset(name string) ([]byte, error) {
 func (d migrateData) AssetNameWithArgs() [][]string {
 	names := [][]string{
 		{"000-bootstrap.sql"},
-		{"001-audit-logs"},
+		{"001-audit-logs.sql"},
 	}
 	return names
 }
