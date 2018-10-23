@@ -265,7 +265,7 @@ dev: prebuild-check deps generate $(FRESH_BIN) ## run the server locally
 # -------------------------------------------------------------------
 .PHONY: migrate-database
 ## Compiles the server and runs the database migration with it
-migrate-database: sqlbindata $(SERVER_BIN) 
+migrate-database: $(SERVER_BIN) 
 	$(SERVER_BIN) -migrateDatabase
 
 .PHONY: sqlbindata

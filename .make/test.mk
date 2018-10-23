@@ -144,7 +144,7 @@ test-unit-with-coverage: prebuild-check clean-coverage-unit $(COV_PATH_UNIT)
 
 .PHONY: test-unit
 ## Runs the unit tests and WITHOUT producing coverage files for each package.
-test-unit: prebuild-check $(SOURCES)
+test-unit: prebuild-check generate $(SOURCES)
 	$(call log-info,"Running test: $@")
 	$(eval TEST_PACKAGES:=$(shell go list ./... | grep -v $(ALL_PKGS_EXCLUDE_PATTERN)))
 	ADMIN_DEVELOPER_MODE_ENABLED=1 ADMIN_RESOURCE_UNIT_TEST=1 ADMIN_LOG_LEVEL=$(ADMIN_LOG_LEVEL) go test -vet off $(GO_TEST_VERBOSITY_FLAG) $(TEST_PACKAGES)
