@@ -13,6 +13,6 @@ func init() {
 	var err error
 	UserSearch, err = uuid.FromString("7aea0277-d6fa-4df9-8224-a27fa4096ec7")
 	if err != nil {
-		panic(fmt.Sprintf("UserSearch event type ID os not an UUID: %v", err))
+		panic(fmt.Sprintf("UserSearch event type ID is not an UUID: %v", err))
 	}
 }
