@@ -9,8 +9,8 @@ import (
 
 	"github.com/fabric8-services/admin-console/auditlog"
 	"github.com/fabric8-services/admin-console/configuration"
-	testsuite "github.com/fabric8-services/admin-console/test/suite"
 	"github.com/fabric8-services/fabric8-common/resource"
+	testsuite "github.com/fabric8-services/fabric8-common/test/suite"
 
 	uuid "github.com/satori/go.uuid"
 	"github.com/stretchr/testify/assert"
