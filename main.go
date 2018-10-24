@@ -51,10 +51,6 @@ func main() {
 			"err":              err,
 		}, "failed to setup the configuration")
 	}
-	// Nothing to here except exit, since the migration is already performed.
-	if printConfig {
-		os.Exit(0)
-	}
 
 	// Initialized developer mode flag and log level for the logger
 	log.InitializeLogger(config.IsLogJSON(), config.GetLogLevel())
@@ -97,8 +93,6 @@ func main() {
 	}
 	defer haltSentry()
 
-	printUserInfo()
-
 	// Create service
 	service := goa.New("admin-console")
 
@@ -126,6 +120,12 @@ func main() {
 	log.Logger().Infoln("UTC Start Time: ", app.StartTime)
 	log.Logger().Infoln("GOMAXPROCS:     ", runtime.GOMAXPROCS(-1))
 	log.Logger().Infoln("NumCPU:         ", runtime.NumCPU())
+
+	printUserInfo()
+	// Nothing to here except exit.
+	if printConfig {
+		os.Exit(0)
+	}
 
 	http.Handle("/api/", service.Mux)
 	http.Handle("/favicon.ico", http.NotFoundHandler())

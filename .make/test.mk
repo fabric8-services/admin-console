@@ -186,7 +186,7 @@ test-remote: prebuild-check $(SOURCES)
 ## Runs the migration tests and should be executed before running the integration tests
 ## in order to have a clean database
 test-migration: prebuild-check
-	ADMIN_RESOURCE_DATABASE=1 ADMIN_LOG_LEVEL=$(ADMIN_LOG_LEVEL) go test -vet off $(GO_TEST_VERBOSITY_FLAG) github.com/fabric8-services/admin-console/migration
+	F8_RESOURCE_DATABASE=1 ADMIN_LOG_LEVEL=$(ADMIN_LOG_LEVEL) go test -vet off $(GO_TEST_VERBOSITY_FLAG) github.com/fabric8-services/admin-console/migration -v
 
 # Downloads docker-compose to tmp/docker-compose if it does not already exist.
 define download-docker-compose

@@ -23,13 +23,13 @@ import (
 type AuditLog struct {
 	ID          uuid.UUID   `sql:"type:uuid default uuid_generate_v4()" gorm:"primary_key"`
 	CreatedAt   time.Time   `json:"created_at,omitempty"`
-	IdentityID  uuid.UUID   `sql:"type:uuid"` // TODO: or should we store the sub claim instead as a string: no need to convert it into an UUID each time
+	IdentityID  uuid.UUID   `sql:"type:uuid"`
 	EventTypeID uuid.UUID   `sql:"type:uuid"`
 	EventParams EventParams `sql:"type:jsonb"`
 }
 
 const (
-	recordTableName = "audit_logs"
+	recordTableName = "audit_log"
 )
 
 // TableName implements gorm.tabler
@@ -131,6 +131,9 @@ func (r *GormAuditLogRepository) Create(ctx context.Context, auditLog *AuditLog)
 	if auditLog == nil {
 		return errors.NewBadParameterErrorFromString("missing audit log auditLog to persist")
 	}
+	if auditLog.EventTypeID == uuid.Nil {
+		return errors.NewBadParameterError("event_type_id", auditLog.EventTypeID)
+	}
 	if auditLog.IdentityID == uuid.Nil {
 		return errors.NewBadParameterError("identity_id", auditLog.IdentityID)
 	}
@@ -141,7 +144,7 @@ func (r *GormAuditLogRepository) Create(ctx context.Context, auditLog *AuditLog)
 	return nil
 }
 
-// LoadByID returns the auditLog for the given id
+// LoadByID returns the AuditLog with the given id
 // returns NotFoundError or InternalError
 func (r *GormAuditLogRepository) LoadByID(ctx context.Context, id uuid.UUID) (AuditLog, error) {
 	defer goa.MeasureSince([]string{"goa", "db", "auditLog", "loadById"}, time.Now())
@@ -159,7 +162,9 @@ func (r *GormAuditLogRepository) LoadByID(ctx context.Context, id uuid.UUID) (Au
 	return result, nil
 }
 
-// List returns audit log records that belong to a given user
+// List returns audit log records that belong to a user (given her identity ID), as well as the total number of records
+// returns BadParameterError if the `start` or `limit` are invalid (negative) or InternalError an error if something wrong happened
+// while qyerying or reading the returned rows
 func (r *GormAuditLogRepository) List(ctx context.Context, identityID uuid.UUID, start int, limit int) ([]AuditLog, int, error) {
 	defer goa.MeasureSince([]string{"goa", "db", "auditLogs", "list"}, time.Now())
 	db := r.db.Model(&AuditLog{}).Where("identity_id = ?", identityID)

@@ -65,6 +65,8 @@ func (s *RepositoryBlackBoxTest) TestCreateRecord() {
 			err := s.repo.Create(context.Background(), &auditLog)
 			// then
 			require.Error(t, err)
+			assert.IsType(t, errors.BadParameterError{}, err)
+			assert.Contains(t, err.Error(), "identity_id")
 		})
 
 		t.Run("missing identity id", func(t *testing.T) {
@@ -77,6 +79,8 @@ func (s *RepositoryBlackBoxTest) TestCreateRecord() {
 			err := s.repo.Create(context.Background(), &auditLog)
 			// then
 			require.Error(t, err)
+			assert.IsType(t, errors.BadParameterError{}, err)
+			assert.Contains(t, err.Error(), "identity_id")
 		})
 	})
 }
