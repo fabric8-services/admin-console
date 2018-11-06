@@ -9,6 +9,8 @@ import (
 	"runtime"
 	"time"
 
+	"github.com/fabric8-services/admin-console/migration"
+
 	"github.com/fabric8-services/admin-console/app"
 	"github.com/fabric8-services/admin-console/configuration"
 	"github.com/fabric8-services/admin-console/controller"
@@ -42,21 +44,7 @@ func main() {
 	flag.BoolVar(&migrateDB, "migrateDatabase", false, "Migrates the database to the newest version and exits.")
 	flag.Parse()
 
-	// Override default -config switch with environment variable only if -config switch was
-	// not explicitly given via the command line.
-	configSwitchIsSet := false
-	flag.Visit(func(f *flag.Flag) {
-		if f.Name == "config" {
-			configSwitchIsSet = true
-		}
-	})
-	if !configSwitchIsSet {
-		if envConfigPath, ok := os.LookupEnv("ADMIN_CONFIG_FILE_PATH"); ok {
-			configFilePath = envConfigPath
-		}
-	}
-
-	config, err := configuration.New(configFilePath)
+	config, err := configuration.New()
 	if err != nil {
 		log.Panic(context.TODO(), map[string]interface{}{
 			"config_file_path": configFilePath,
@@ -64,17 +52,8 @@ func main() {
 		}, "failed to setup the configuration")
 	}
 
-	if printConfig {
-		os.Exit(0)
-	}
-
 	// Initialized developer mode flag and log level for the logger
 	log.InitializeLogger(config.IsLogJSON(), config.GetLogLevel())
-
-	// Nothing to here except exit, since the migration is already performed.
-	if migrateDB {
-		os.Exit(0)
-	}
 
 	var db *gorm.DB
 	for {
@@ -89,6 +68,17 @@ func main() {
 			break
 		}
 	}
+	// Migrate the schema
+	err = migration.Migrate(db.DB(), config.GetPostgresDatabase())
+	if err != nil {
+		log.Panic(nil, map[string]interface{}{
+			"err": err,
+		}, "failed migration")
+	}
+	// Nothing to here except exit, since the migration is already performed.
+	if migrateDB {
+		os.Exit(0)
+	}
 
 	// Initialize sentry client
 	haltSentry, err := sentry.InitializeSentryClient(
@@ -102,8 +92,6 @@ func main() {
 		}, "failed to setup the sentry client")
 	}
 	defer haltSentry()
-
-	printUserInfo()
 
 	// Create service
 	service := goa.New("admin-console")
@@ -132,6 +120,12 @@ func main() {
 	log.Logger().Infoln("UTC Start Time: ", app.StartTime)
 	log.Logger().Infoln("GOMAXPROCS:     ", runtime.GOMAXPROCS(-1))
 	log.Logger().Infoln("NumCPU:         ", runtime.NumCPU())
+
+	printUserInfo()
+	// Nothing to here except exit.
+	if printConfig {
+		os.Exit(0)
+	}
 
 	http.Handle("/api/", service.Mux)
 	http.Handle("/favicon.ico", http.NotFoundHandler())

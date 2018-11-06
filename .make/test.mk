@@ -128,7 +128,7 @@ GOANALYSIS_DIRS=$(shell go list -f {{.Dir}} ./... | grep -v -E $(GOANALYSIS_PKGS
 test-all: prebuild-check test-unit test-integration
 
 .PHONY: test-unit-with-coverage
-## Runs the unit tests and produces coverage files for each package.
+# Runs the unit tests and produces coverage files for each package.
 test-unit-with-coverage: prebuild-check clean-coverage-unit $(COV_PATH_UNIT)
 
 .PHONY: test-unit
@@ -141,15 +141,9 @@ test-unit: prebuild-check $(SOURCES) ## Runs the unit tests and WITHOUT producin
 test-unit-junit: prebuild-check ${GO_JUNIT_BIN} ${TMP_PATH}
 	bash -c "set -o pipefail; make test-unit 2>&1 | tee >(${GO_JUNIT_BIN} > ${TMP_PATH}/junit.xml)"
  
-## Compiles the server and runs the database migration with it
-migrate-database: $(SERVER_BIN)
-	@echo "running database migration..."
-	$(SERVER_BIN) -migrateDatabase
-.PHONY: migrate-database
-
 .PHONY: test-integration-with-coverage
-## Runs the integration tests and produces coverage files for each package.
-## Make sure you ran "make integration-test-env-prepare" before you run this target.
+# Runs the integration tests and produces coverage files for each package.
+# Make sure you ran "make integration-test-env-prepare" before you run this target.
 test-integration-with-coverage: prebuild-check clean-coverage-integration migrate-database $(COV_PATH_INTEGRATION)
 
 .PHONY: test-integration 
@@ -157,18 +151,18 @@ test-integration-with-coverage: prebuild-check clean-coverage-integration migrat
 test-integration: prebuild-check migrate-database $(SOURCES) ## Runs the integration tests WITHOUT producing coverage files for each package.
 	$(call log-info,"Running test: $@")
 	$(eval TEST_PACKAGES:=$(shell go list ./... | grep -v $(ALL_PKGS_EXCLUDE_PATTERN)))
-	ADMIN_DEVELOPER_MODE_ENABLED=1 ADMIN_RESOURCE_DATABASE=1 ADMIN_RESOURCE_UNIT_TEST=0 ADMIN_LOG_LEVEL=$(ADMIN_LOG_LEVEL) go test -vet off $(GO_TEST_VERBOSITY_FLAG) $(TEST_PACKAGES)
+	ADMIN_DEVELOPER_MODE_ENABLED=1 F8_RESOURCE_DATABASE=1 ADMIN_RESOURCE_UNIT_TEST=0 ADMIN_LOG_LEVEL=$(ADMIN_LOG_LEVEL) go test -vet off $(GO_TEST_VERBOSITY_FLAG) $(TEST_PACKAGES)
 
 test-integration-benchmark: prebuild-check migrate-database $(SOURCES)
 	$(call log-info,"Running benchmarks: $@")
 	$(eval TEST_PACKAGES:=$(shell go list ./... | grep -v $(ALL_PKGS_EXCLUDE_PATTERN)))
-	ADMIN_DEVELOPER_MODE_ENABLED=1 ADMIN_LOG_LEVEL=error ADMIN_RESOURCE_DATABASE=1 ADMIN_RESOURCE_UNIT_TEST=0 ADMIN_LOG_LEVEL=$(ADMIN_LOG_LEVEL) go test -vet off -run=^$$ -bench=. -cpu 1,2,4 -test.benchmem $(GO_TEST_VERBOSITY_FLAG) $(TEST_PACKAGES)
+	ADMIN_DEVELOPER_MODE_ENABLED=1 ADMIN_LOG_LEVEL=error F8_RESOURCE_DATABASE=1 ADMIN_RESOURCE_UNIT_TEST=0 ADMIN_LOG_LEVEL=$(ADMIN_LOG_LEVEL) go test -vet off -run=^$$ -bench=. -cpu 1,2,4 -test.benchmem $(GO_TEST_VERBOSITY_FLAG) $(TEST_PACKAGES)
 
 .PHONY: test-migration
 ## Runs the migration tests and should be executed before running the integration tests
 ## in order to have a clean database
 test-migration: prebuild-check
-	ADMIN_RESOURCE_DATABASE=1 ADMIN_LOG_LEVEL=$(ADMIN_LOG_LEVEL) go test -vet off $(GO_TEST_VERBOSITY_FLAG) github.com/fabric8-services/admin-console/migration
+	F8_RESOURCE_DATABASE=1 ADMIN_LOG_LEVEL=$(ADMIN_LOG_LEVEL) go test -vet off $(GO_TEST_VERBOSITY_FLAG) github.com/fabric8-services/admin-console/migration -v
 
 # Downloads docker-compose to tmp/docker-compose if it does not already exist.
 define download-docker-compose
@@ -183,8 +177,8 @@ define download-docker-compose
 endef
 
 .PHONY: integration-test-env-prepare
-## Prepares all services needed to run the integration tests.
-## If not already available, this target will download docker-compose (on Linux).
+# Prepares all services needed to run the integration tests.
+# If not already available, this target will download docker-compose (on Linux).
 integration-test-env-prepare:
 ifdef DOCKER_COMPOSE_BIN
 	@$(DOCKER_COMPOSE_BIN) -f $(DOCKER_COMPOSE_FILE) up -d
@@ -198,7 +192,7 @@ endif
 endif
 
 .PHONY: integration-test-env-tear-down
-## Tears down all services needed to run the integration tests
+# Tears down all services needed to run the integration tests
 integration-test-env-tear-down:
 ifdef DOCKER_COMPOSE_BIN
 	@$(DOCKER_COMPOSE_BIN) -f $(DOCKER_COMPOSE_FILE) down
@@ -276,16 +270,16 @@ define cleanup-coverage-file
 endef
 
 .PHONY: coverage-unit
-## Output coverage profile information for each function (only based on unit-tests).
-## Re-runs unit-tests if coverage information is outdated.
+# Output coverage profile information for each function (only based on unit-tests).
+# Re-runs unit-tests if coverage information is outdated.
 coverage-unit: prebuild-check $(COV_PATH_UNIT)
 	$(call cleanup-coverage-file,$(COV_PATH_UNIT))
 	@go tool cover -func=$(COV_PATH_UNIT)
 	$(call package-coverage,unit)
 
 .PHONY: coverage-integration
-## Output coverage profile information for each function (only based on integration tests).
-## Re-runs integration-tests if coverage information is outdated.
+# Output coverage profile information for each function (only based on integration tests).
+# Re-runs integration-tests if coverage information is outdated.
 coverage-integration: prebuild-check $(COV_PATH_INTEGRATION)
 	$(call cleanup-coverage-file,$(COV_PATH_INTEGRATION))
 	@go tool cover -func=$(COV_PATH_INTEGRATION)
@@ -302,15 +296,15 @@ coverage-all: prebuild-check clean-coverage-overall $(COV_PATH_OVERALL)
 # HTML coverage output:
 
 .PHONY: coverage-unit-html
-## Generate HTML representation (and show in browser) of coverage profile (based on unit tests).
-## Re-runs unit tests if coverage information is outdated.
+# Generate HTML representation (and show in browser) of coverage profile (based on unit tests).
+# Re-runs unit tests if coverage information is outdated.
 coverage-unit-html: prebuild-check $(COV_PATH_UNIT)
 	$(call cleanup-coverage-file,$(COV_PATH_UNIT))
 	@go tool cover -html=$(COV_PATH_UNIT)
 
 .PHONY: coverage-integration-html
-## Generate HTML representation (and show in browser) of coverage profile (based on integration tests).
-## Re-runs integration tests if coverage information is outdated.
+# Generate HTML representation (and show in browser) of coverage profile (based on integration tests).
+# Re-runs integration tests if coverage information is outdated.
 coverage-integration-html: prebuild-check $(COV_PATH_INTEGRATION)
 	$(call cleanup-coverage-file,$(COV_PATH_INTEGRATION))
 	@go tool cover -html=$(COV_PATH_INTEGRATION)
@@ -325,8 +319,8 @@ coverage-all-html: prebuild-check clean-coverage-overall $(COV_PATH_OVERALL)
 # Experimental:
 
 .PHONY: gocov-unit-annotate
-## (EXPERIMENTAL) Show actual code and how it is covered with unit tests.
-##                This target only runs the tests if the coverage file does exist.
+# (EXPERIMENTAL) Show actual code and how it is covered with unit tests.
+#                This target only runs the tests if the coverage file does exist.
 gocov-unit-annotate: prebuild-check $(GOCOV_BIN) $(COV_PATH_UNIT)
 	$(call cleanup-coverage-file,$(COV_PATH_UNIT))
 	@$(GOCOV_BIN) convert $(COV_PATH_UNIT) | $(GOCOV_BIN) annotate -
@@ -337,8 +331,8 @@ gocov-unit-annotate: prebuild-check $(GOCOV_BIN) $(COV_PATH_UNIT)
 	@$(GOCOV_BIN) convert $(COV_PATH_UNIT) | $(GOCOV_BIN) report
 
 .PHONY: gocov-integration-annotate
-## (EXPERIMENTAL) Show actual code and how it is covered with integration tests.
-##                This target only runs the tests if the coverage file does exist.
+# (EXPERIMENTAL) Show actual code and how it is covered with integration tests.
+#                This target only runs the tests if the coverage file does exist.
 gocov-integration-annotate: prebuild-check $(GOCOV_BIN) $(COV_PATH_INTEGRATION)
 	$(call cleanup-coverage-file,$(COV_PATH_INTEGRATION))
 	@$(GOCOV_BIN) convert $(COV_PATH_INTEGRATION) | $(GOCOV_BIN) annotate -
@@ -432,7 +426,7 @@ $(COV_PATH_INTEGRATION): $(SOURCES) $(GOCOVMERGE_BIN)
 	@-rm -f $(ERRORS_FILE)
 	$(eval TEST_PACKAGES:=$(shell go list ./... | grep -v $(ALL_PKGS_EXCLUDE_PATTERN)))
 	$(eval ALL_PKGS_COMMA_SEPARATED:=$(shell echo $(TEST_PACKAGES)  | tr ' ' ,))
-	$(foreach package, $(TEST_PACKAGES), $(call test-package,$(TEST_NAME),$(package),$(COV_PATH_INTEGRATION),$(ERRORS_FILE),ADMIN_RESOURCE_DATABASE=1 ADMIN_RESOURCE_UNIT_TEST=0,$(ALL_PKGS_COMMA_SEPARATED)))
+	$(foreach package, $(TEST_PACKAGES), $(call test-package,$(TEST_NAME),$(package),$(COV_PATH_INTEGRATION),$(ERRORS_FILE),F8_RESOURCE_DATABASE=1 ADMIN_RESOURCE_UNIT_TEST=0,$(ALL_PKGS_COMMA_SEPARATED)))
 	$(call check-test-results,$(ERRORS_FILE))
 
 #-------------------------------------------------------------------------------
@@ -457,18 +451,18 @@ clean-coverage: clean-coverage-unit clean-coverage-integration clean-coverage-ov
 
 CLEAN_TARGETS += clean-coverage-overall
 .PHONY: clean-coverage-overall
-## Removes overall coverage file
+# Removes overall coverage file
 clean-coverage-overall:
 	-@rm -f $(COV_PATH_OVERALL)
 
 CLEAN_TARGETS += clean-coverage-unit
 .PHONY: clean-coverage-unit
-## Removes unit test coverage file
+# Removes unit test coverage file
 clean-coverage-unit:
 	-@rm -f $(COV_PATH_UNIT)
 
 CLEAN_TARGETS += clean-coverage-integration
 .PHONY: clean-coverage-integration
-## Removes integration test coverage file
+# Removes integration test coverage file
 clean-coverage-integration:
 	-@rm -f $(COV_PATH_INTEGRATION)

@@ -82,9 +82,29 @@ image: clean-artifacts build-linux
 # -------------------------------------------------------------------
 
 .PHONY: help
-help: ## Prints this help
-	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST) | sort
-
+# Based on https://gist.github.com/rcmachado/af3db315e31383502660
+## Display this help text.
+help:/
+	$(info Available targets)
+	$(info -----------------)
+	@awk '/^[a-zA-Z\-\_0-9]+:/ { \
+		helpMessage = match(lastLine, /^## (.*)/); \
+		helpCommand = substr($$1, 0, index($$1, ":")-1); \
+		if (helpMessage) { \
+			helpMessage = substr(lastLine, RSTART + 3, RLENGTH); \
+			gsub(/##/, "\n                                     ", helpMessage); \
+			printf "%-35s - %s\n", helpCommand, helpMessage; \
+			lastLine = "" \
+		} \
+	} \
+	{ hasComment = match(lastLine, /^## (.*)/); \
+          if(hasComment) { \
+            lastLine=lastLine$$0; \
+	  } \
+          else { \
+	    lastLine = $$0 \
+          } \
+        }' $(MAKEFILE_LIST)
 # -------------------------------------------------------------------
 # required tools
 # -------------------------------------------------------------------
@@ -121,7 +141,8 @@ $(DEP_BIN_DIR):
 	mkdir -p $(DEP_BIN_DIR)
 
 .PHONY: deps 
-deps: $(DEP_BIN) $(VENDOR_DIR) ## Download build dependencies.
+## Download build dependencies.
+deps: $(DEP_BIN) $(VENDOR_DIR) 
 
 # install dep in a the tmp/bin dir of the repo
 $(DEP_BIN): $(DEP_BIN_DIR) 
@@ -184,6 +205,12 @@ $(GOAGEN_BIN): $(VENDOR_DIR)
 	cd $(VENDOR_DIR)/github.com/goadesign/goa/goagen && go build -v
 
 # -------------------------------------------------------------------
+# support for packaging sql files in a go file
+# -------------------------------------------------------------------
+$(GO_BINDATA_BIN): $(VENDOR_DIR)
+	cd $(VENDOR_DIR)/github.com/jteeuwen/go-bindata/go-bindata && go build -v
+
+# -------------------------------------------------------------------
 # clean
 # -------------------------------------------------------------------
 
@@ -192,38 +219,39 @@ CLEAN_TARGETS =
 
 CLEAN_TARGETS += clean-artifacts
 .PHONY: clean-artifacts
-## Removes the ./bin directory.
+# Removes the ./bin directory.
 clean-artifacts:
 	-rm -rf $(INSTALL_PREFIX)
 
 CLEAN_TARGETS += clean-object-files
 .PHONY: clean-object-files
-## Runs go clean to remove any executables or other object files.
+# Runs go clean to remove any executables or other object files.
 clean-object-files:
 	go clean ./...
 
 CLEAN_TARGETS += clean-generated
 .PHONY: clean-generated
-## Removes all generated code.
+# Removes all generated code.
 clean-generated:
 	-rm -rf ./app
 	-rm -rf ./swagger/
 
 CLEAN_TARGETS += clean-vendor
 .PHONY: clean-vendor
-## Removes the ./vendor directory.
+# Removes the ./vendor directory.
 clean-vendor:
 	-rm -rf $(VENDOR_DIR)
 
 CLEAN_TARGETS += clean-tmp
 .PHONY: clean-tmp
-## Removes the ./vendor directory.
+# Removes the ./vendor directory.
 clean-tmp:
 	-rm -rf $(TMP_DIR)
 
 # Keep this "clean" target here after all `clean-*` sub tasks
 .PHONY: clean
-clean: $(CLEAN_TARGETS) ## Runs all clean-* targets.
+## Runs all clean-* targets.
+clean: $(CLEAN_TARGETS) 
 
 # -------------------------------------------------------------------
 # run in dev mode
@@ -233,19 +261,49 @@ dev: prebuild-check deps generate $(FRESH_BIN) ## run the server locally
 	ADMIN_DEVELOPER_MODE_ENABLED=true $(FRESH_BIN)
 
 # -------------------------------------------------------------------
+# database migration
+# -------------------------------------------------------------------
+.PHONY: migrate-database
+## Compiles the server and runs the database migration with it
+migrate-database: $(SERVER_BIN) 
+	$(SERVER_BIN) -migrateDatabase
+
+.PHONY: sqlbindata
+sqlbindata: migration/sqlbindata.go 
+
+# Pack all migration SQL files into a compilable Go file
+migration/sqlbindata.go: $(GO_BINDATA_BIN)
+	$(GO_BINDATA_BIN) \
+		-o migration/sqlbindata.go \
+		-pkg migration \
+		-prefix migration/sql-files \
+		-nocompress \
+		migration/sql-files
+
+migration/sqlbindata_test.go: $(GO_BINDATA_BIN) # unused for now
+	$(GO_BINDATA_BIN) \
+		-o migration/sqlbindata_test.go \
+		-pkg migration_test \
+		-prefix migration/sql-test-files \
+		-nocompress \
+		migration/sql-test-files
+# -------------------------------------------------------------------
 # build the binary executable (to ship in prod)
 # -------------------------------------------------------------------
 LDFLAGS=-ldflags "-X ${PACKAGE_NAME}/app.Commit=${COMMIT} -X ${PACKAGE_NAME}/app.BuildTime=${BUILD_TIME}"
 
-$(SERVER_BIN): prebuild-check deps generate ## Build the server
+.PHONY: build
+## Build the server
+build: generate sqlbindata $(SERVER_BIN) 
+
+$(SERVER_BIN): prebuild-check deps generate 
 	@echo "building $(SERVER_BIN)..."
 	go build -v $(LDFLAGS) -o $(SERVER_BIN)
 
-.PHONY: build
-build: $(SERVER_BIN) ## Build the server
 
 .PHONY: generate
-generate: prebuild-check $(DESIGNS) $(GOAGEN_BIN) $(VENDOR_DIR) ## Generate GOA sources. Only necessary after clean of if changed `design` folder.
+## Generate GOA sources. Only necessary after clean of if changed `design` folder.
+generate: prebuild-check $(DESIGNS) $(GOAGEN_BIN) $(VENDOR_DIR)
 	$(GOAGEN_BIN) app -d ${PACKAGE_NAME}/${DESIGN_DIR}
 	$(GOAGEN_BIN) controller -d ${PACKAGE_NAME}/${DESIGN_DIR} -o controller/ --pkg controller --app-pkg ${PACKAGE_NAME}/app
 	$(GOAGEN_BIN) gen -d ${PACKAGE_NAME}/${DESIGN_DIR} --pkg-path=github.com/fabric8-services/fabric8-common/goasupport/status --out app
