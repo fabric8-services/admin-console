@@ -164,12 +164,12 @@ test-integration-with-coverage: prebuild-check clean-coverage-integration migrat
 test-integration: prebuild-check migrate-database $(SOURCES)
 	$(call log-info,"Running test: $@")
 	$(eval TEST_PACKAGES:=$(shell go list ./... | grep -v $(ALL_PKGS_EXCLUDE_PATTERN)))
-	ADMIN_DEVELOPER_MODE_ENABLED=1 ADMIN_RESOURCE_DATABASE=1 ADMIN_RESOURCE_UNIT_TEST=0 ADMIN_LOG_LEVEL=$(ADMIN_LOG_LEVEL) go test -vet off $(GO_TEST_VERBOSITY_FLAG) $(TEST_PACKAGES)
+	ADMIN_DEVELOPER_MODE_ENABLED=1 F8_RESOURCE_DATABASE=1 ADMIN_RESOURCE_UNIT_TEST=0 ADMIN_LOG_LEVEL=$(ADMIN_LOG_LEVEL) go test -vet off $(GO_TEST_VERBOSITY_FLAG) $(TEST_PACKAGES)
 
 test-integration-benchmark: prebuild-check migrate-database $(SOURCES)
 	$(call log-info,"Running benchmarks: $@")
 	$(eval TEST_PACKAGES:=$(shell go list ./... | grep -v $(ALL_PKGS_EXCLUDE_PATTERN)))
-	ADMIN_DEVELOPER_MODE_ENABLED=1 ADMIN_LOG_LEVEL=error ADMIN_RESOURCE_DATABASE=1 ADMIN_RESOURCE_UNIT_TEST=0 ADMIN_LOG_LEVEL=$(ADMIN_LOG_LEVEL) go test -vet off -run=^$$ -bench=. -cpu 1,2,4 -test.benchmem $(GO_TEST_VERBOSITY_FLAG) $(TEST_PACKAGES)
+	ADMIN_DEVELOPER_MODE_ENABLED=1 ADMIN_LOG_LEVEL=error F8_RESOURCE_DATABASE=1 ADMIN_RESOURCE_UNIT_TEST=0 ADMIN_LOG_LEVEL=$(ADMIN_LOG_LEVEL) go test -vet off -run=^$$ -bench=. -cpu 1,2,4 -test.benchmem $(GO_TEST_VERBOSITY_FLAG) $(TEST_PACKAGES)
 
 .PHONY: test-remote-with-coverage
 # Runs the remote tests and produces coverage files for each package.
@@ -482,7 +482,7 @@ $(COV_PATH_INTEGRATION): $(SOURCES) $(GOCOVMERGE_BIN)
 	@-rm -f $(ERRORS_FILE)
 	$(eval TEST_PACKAGES:=$(shell go list ./... | grep -v $(ALL_PKGS_EXCLUDE_PATTERN)))
 	$(eval ALL_PKGS_COMMA_SEPARATED:=$(shell echo $(TEST_PACKAGES)  | tr ' ' ,))
-	$(foreach package, $(TEST_PACKAGES), $(call test-package,$(TEST_NAME),$(package),$(COV_PATH_INTEGRATION),$(ERRORS_FILE),ADMIN_RESOURCE_DATABASE=1 ADMIN_RESOURCE_UNIT_TEST=0,$(ALL_PKGS_COMMA_SEPARATED)))
+	$(foreach package, $(TEST_PACKAGES), $(call test-package,$(TEST_NAME),$(package),$(COV_PATH_INTEGRATION),$(ERRORS_FILE),F8_RESOURCE_DATABASE=1 ADMIN_RESOURCE_UNIT_TEST=0,$(ALL_PKGS_COMMA_SEPARATED)))
 	$(call check-test-results,$(ERRORS_FILE))
 
 # NOTE: We don't have prebuild-check as a dependency here because it would cause

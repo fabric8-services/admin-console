@@ -21,7 +21,7 @@ import (
 
 // AuditLog an audit log record to track usage of the service
 type AuditLog struct {
-	ID          uuid.UUID   `sql:"type:uuid default uuid_generate_v4()" gorm:"primary_key"`
+	ID          uuid.UUID   `sql:"type:uuid default uuid_generate_v4()" gorm:"primary_key;column:audit_log_id"`
 	CreatedAt   time.Time   `json:"created_at,omitempty"`
 	IdentityID  uuid.UUID   `sql:"type:uuid"`
 	EventTypeID uuid.UUID   `sql:"type:uuid"`
@@ -108,7 +108,7 @@ func fromBytes(src interface{}, target interface{}) error {
 type Repository interface {
 	Create(ctx context.Context, auditLog *AuditLog) error
 	LoadByID(ctx context.Context, id uuid.UUID) (AuditLog, error)
-	List(ctx context.Context, identityID uuid.UUID, start int, limit int) ([]AuditLog, int, error)
+	ListByIdentityID(ctx context.Context, identityID uuid.UUID, start int, limit int) ([]AuditLog, int, error)
 }
 
 // NewRepository creates a GormRecordRepository
@@ -149,11 +149,11 @@ func (r *GormAuditLogRepository) Create(ctx context.Context, auditLog *AuditLog)
 func (r *GormAuditLogRepository) LoadByID(ctx context.Context, id uuid.UUID) (AuditLog, error) {
 	defer goa.MeasureSince([]string{"goa", "db", "auditLog", "loadById"}, time.Now())
 	result := AuditLog{}
-	tx := r.db.Model(AuditLog{}).Where("id = ?", id).First(&result)
+	tx := r.db.Model(AuditLog{}).Where("audit_log_id = ?", id).First(&result)
 	if tx.RecordNotFound() {
 		log.Error(nil, map[string]interface{}{
 			"record_id": id,
-		}, "auditlog auditLog not found")
+		}, "auditlog not found")
 		return AuditLog{}, errors.NewNotFoundError("auditlog_record", id.String())
 	}
 	if err := tx.Error; err != nil {
@@ -162,10 +162,10 @@ func (r *GormAuditLogRepository) LoadByID(ctx context.Context, id uuid.UUID) (Au
 	return result, nil
 }
 
-// List returns audit log records that belong to a user (given her identity ID), as well as the total number of records
+// ListByIdentityID returns audit log records that belong to a user (given her identity ID), as well as the total number of records
 // returns BadParameterError if the `start` or `limit` are invalid (negative) or InternalError an error if something wrong happened
 // while qyerying or reading the returned rows
-func (r *GormAuditLogRepository) List(ctx context.Context, identityID uuid.UUID, start int, limit int) ([]AuditLog, int, error) {
+func (r *GormAuditLogRepository) ListByIdentityID(ctx context.Context, identityID uuid.UUID, start int, limit int) ([]AuditLog, int, error) {
 	defer goa.MeasureSince([]string{"goa", "db", "auditLogs", "list"}, time.Now())
 	db := r.db.Model(&AuditLog{}).Where("identity_id = ?", identityID)
 	unboundedDB := db

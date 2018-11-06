@@ -66,7 +66,7 @@ func (s *RepositoryBlackBoxTest) TestCreateRecord() {
 			// then
 			require.Error(t, err)
 			assert.IsType(t, errors.BadParameterError{}, err)
-			assert.Contains(t, err.Error(), "identity_id")
+			assert.Contains(t, err.Error(), "event_type_id")
 		})
 
 		t.Run("missing identity id", func(t *testing.T) {
@@ -137,7 +137,7 @@ func (s *RepositoryBlackBoxTest) TestList() {
 
 		t.Run("1st page of 5", func(t *testing.T) {
 			// when
-			auditLogs, count, err := s.repo.List(context.Background(), identity1, 0, 5)
+			auditLogs, count, err := s.repo.ListByIdentityID(context.Background(), identity1, 0, 5)
 			// then
 			require.NoError(t, err)
 			assert.Equal(t, 12, count)
@@ -151,7 +151,7 @@ func (s *RepositoryBlackBoxTest) TestList() {
 
 		t.Run("2nd page of 5", func(t *testing.T) {
 			// when
-			auditLogs, count, err := s.repo.List(context.Background(), identity1, 5, 5)
+			auditLogs, count, err := s.repo.ListByIdentityID(context.Background(), identity1, 5, 5)
 			// then
 			require.NoError(t, err)
 			assert.Equal(t, 12, count)
@@ -165,7 +165,7 @@ func (s *RepositoryBlackBoxTest) TestList() {
 
 		t.Run("last page of 2", func(t *testing.T) {
 			// when
-			auditLogs, count, err := s.repo.List(context.Background(), identity1, 10, 5)
+			auditLogs, count, err := s.repo.ListByIdentityID(context.Background(), identity1, 10, 5)
 			// then
 			require.NoError(t, err)
 			assert.Equal(t, 12, count)
@@ -179,7 +179,7 @@ func (s *RepositoryBlackBoxTest) TestList() {
 
 		t.Run("out of range", func(t *testing.T) {
 			// when
-			auditLogs, count, err := s.repo.List(context.Background(), identity1, 15, 5)
+			auditLogs, count, err := s.repo.ListByIdentityID(context.Background(), identity1, 15, 5)
 			// then
 			require.NoError(t, err)
 			assert.Equal(t, 12, count)
@@ -191,7 +191,7 @@ func (s *RepositoryBlackBoxTest) TestList() {
 
 		t.Run("invalid start", func(t *testing.T) {
 			// when
-			_, _, err := s.repo.List(context.Background(), identity1, -1, 5)
+			_, _, err := s.repo.ListByIdentityID(context.Background(), identity1, -1, 5)
 			// then
 			require.Error(t, err)
 			require.IsType(t, errors.BadParameterError{}, err)
@@ -199,7 +199,7 @@ func (s *RepositoryBlackBoxTest) TestList() {
 
 		t.Run("invalid limit", func(t *testing.T) {
 			// when
-			_, _, err := s.repo.List(context.Background(), identity1, 0, -5)
+			_, _, err := s.repo.ListByIdentityID(context.Background(), identity1, 0, -5)
 			// then
 			require.Error(t, err)
 			require.IsType(t, errors.BadParameterError{}, err)
