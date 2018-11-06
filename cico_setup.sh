@@ -61,7 +61,6 @@ function run_tests_without_coverage() {
 
   make docker-test-migration
   make docker-test-integration
-  make docker-test-remote
   echo "CICO: ran tests without coverage"
 }
 
@@ -86,9 +85,6 @@ function run_tests_with_coverage() {
   # Run the integration tests that generate coverage information
   make docker-test-migration
   make docker-test-integration-with-coverage
-
-  # Run the remote tests that generate coverage information
-  make docker-test-remote-with-coverage
 
   # Output coverage
   make docker-coverage-all
