@@ -1,0 +1,166 @@
+= Admin Console
+:toc:
+:toc-placement: preamble
+:sectnums:
+:experimental:
+
+image:https://ci.centos.org/buildStatus/icon?job=devtools-admin-console-build-master[Jenkins,link="https://ci.centos.org/view/Devtools/job/devtools-admin-console-build-master/lastBuild/"]
+image:https://goreportcard.com/badge/github.com/fabric8-services/admin-console[Go Report Card, link="https://goreportcard.com/report/github.com/fabric8-services/admin-console"]
+image:https://godoc.org/github.com/fabric8-services/admin-console?status.png[GoDoc,link="https://godoc.org/github.com/fabric8-services/admin-console"]
+
+
+== Building from source [[building]]
+
+The following guide is mainly targeted towards a Linux or Mac OSX development
+machine. 
+
+=== Prerequisites [[prerequisites]]
+
+You need to install:
+
+* `go` (>= v1.8)
+* `git`
+* `mercurial`
+* `make`
+
+==== Check your Go version [[check-go-version]]
+
+Run the following command to find out your Go version.
+
+----
+$ go version
+----
+
+*You must at least have Go version 1.9.*
+
+See <<fetch-dependencies>> to see an explanaition on how we deal with
+dependencies.
+
+==== Install dep [[dep-setup]]
+
+This project uses https://github.com/golang/dep[dep] as a package manager for Go.
+Running the `make deps` command will install `dep` in `$GOPATH/bin` if it's not already available on your system.
+
+=== Get the code [[get-the-code]]
+
+Assuming you have Go installed and configured (have `$GOPATH` setup) here is
+how to build.
+
+Check out the code
+
+----
+$ git clone https://github.com/fabric8-services/admin-console $GOPATH/src/github.com/fabric8-services/admin-console
+----
+
+=== Build [[build]]
+
+Like most other projects, this one depends on various other projects that need
+to be downloaded.
+
+We also generate some code from design files that shall make it into our
+final artifacts.
+
+To fetch the dependencies, generate code and finally build the project you can
+type `make build` in a freshly clone repository of this project.
+
+----
+$ cd $GOPATH/src/github.com/fabric8-services/admin-console
+$ make build
+----
+
+
+==== Special make targets
+
+There is no need to fetch the dependencies, or re-generate code every time you
+want to compile. That's why we offer special `make` targets for these topics:
+
+ * <<deps>>
+ * <<generate>>
+ * <<build>>
+ * <<clean>>
+ * <<test-unit>>
+ * <<tests>>
+ 
+===== Fetch dependencies [[deps]]
+
+This will download all the dependencies for this project inside a directory
+called `vendor`. This way we can ensure that every developer and our CI system
+is using the same version.
+
+----
+$ cd $GOPATH/src/github.com/fabric8-services/admin-console
+$ make deps
+----
+
+For dependency management of `go` packages we use https://github.com/golang/dep[`dep`].
+
+The file `Gopkg.toml` contains all dependencies. If you want to understand the format for this file, look link:https://golang.github.io/dep/docs/Gopkg.toml.html[here].
+
+===== Generate GOA sources [[generate]]
+
+You need to run this command if you just checked out the code and later if
+you've modified the designs.
+
+----
+$ cd $GOPATH/src/github.com/fabric8-services/admin-console
+$ make generate
+----
+
+===== Build [[build]]
+
+If you want to just build the Auth server and client, run `make build`.
+
+----
+$ cd $GOPATH/src/github.com/fabric8-services/admin-console
+$ make build
+----
+
+===== Clean [[clean]]
+
+This removes all downloaded dependencies, all generated code and compiled
+artifacts.
+
+----
+$ cd $GOPATH/src/github.com/fabric8-services/admin-console
+$ make clean
+----
+
+===== Tests [[tests]]
+
+Here's how to run all available tests. All tests will check all Go packages
+except those in the `vendor/` directory.
+Make sure you have docker and docker-compose available.
+
+Setting up test environment - `make integration-test-env-prepare`
+
+Tear test environment down - `make integration-test-env-tear-down`
+
+[horizontal]
+unit-tests::
+Unit tests have the minimum requirement on time and environment setup.
++
+----
+$ cd $GOPATH/src/github.com/fabric8-services/admin-console
+$ make test-unit
+----
+
+integration-tests::
+Integration tests demand more setup (i.e. the PostgreSQL DB must be already
+running) and probably time. We recommend that you use `docker-compose up -d db`.
++
+----
+$ cd $GOPATH/src/github.com/fabric8-services/admin-console
+$ make test-integration
+----
+
+all::
+To run both, the unit and the integration tests you can run
++
+----
+$ cd $GOPATH/src/github.com/fabric8-services/admin-console
+$ make test-all
+----
+
+By default, test data is removed from the database after each test, unless the `ADMIN_CLEAN_TEST_DATA` environment variable is set to `false`. This can be particularily useful to run queries on the test data after a test failure, in order to understand why the result did not match the expectations.
+
+Also, all SQL queries can be displayed in the output if the `ADMIN_ENABLE_DB_LOGS` environment variable is set to `true. Beware that this can be very verbose, though ;)
