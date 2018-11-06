@@ -18,7 +18,7 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
-type RepositoryBlackBoxTest struct {
+type RepositoryBlackboxTestSuite struct {
 	testsuite.DBTestSuite
 	repo auditlog.Repository
 }
@@ -27,15 +27,15 @@ func TestRecordRepository(t *testing.T) {
 	resource.Require(t, resource.Database)
 	config, err := configuration.New()
 	require.NoError(t, err)
-	suite.Run(t, &RepositoryBlackBoxTest{DBTestSuite: testsuite.NewDBTestSuite(config)})
+	suite.Run(t, &RepositoryBlackboxTestSuite{DBTestSuite: testsuite.NewDBTestSuite(config)})
 }
 
-func (s *RepositoryBlackBoxTest) SetupTest() {
-	s.DBTestSuite.SetupTest()
+func (s *RepositoryBlackboxTestSuite) SetupSuite() {
+	s.DBTestSuite.SetupSuite()
 	s.repo = auditlog.NewRepository(s.DB)
 }
 
-func (s *RepositoryBlackBoxTest) TestCreateRecord() {
+func (s *RepositoryBlackboxTestSuite) TestCreateRecord() {
 
 	s.T().Run("ok", func(t *testing.T) {
 		// given
@@ -85,7 +85,7 @@ func (s *RepositoryBlackBoxTest) TestCreateRecord() {
 	})
 }
 
-func (s *RepositoryBlackBoxTest) TestLoadByID() {
+func (s *RepositoryBlackboxTestSuite) TestLoadByID() {
 
 	s.T().Run("ok", func(t *testing.T) {
 		// given
@@ -115,7 +115,7 @@ func (s *RepositoryBlackBoxTest) TestLoadByID() {
 	})
 }
 
-func (s *RepositoryBlackBoxTest) TestList() {
+func (s *RepositoryBlackboxTestSuite) TestList() {
 	// given 2 users with 12 auditLogs each
 	identity1 := uuid.NewV4()
 	identity2 := uuid.NewV4()

@@ -50,6 +50,14 @@
   version = "v5.0.1"
 
 [[projects]]
+  name = "github.com/dnaeon/go-vcr"
+  packages = [
+    "cassette",
+    "recorder"
+  ]
+  revision = "5637cf3d8a31b20882d79bd0e53a186d3821b155"
+
+[[projects]]
   name = "github.com/fabric8-services/fabric8-common"
   packages = [
     "closeable",
@@ -59,12 +67,17 @@
     "goasupport/jsonapi_errors_helpers",
     "goasupport/status",
     "gormsupport",
+    "httpsupport",
     "log",
     "metric",
     "migration",
     "resource",
     "sentry",
-    "test/suite"
+    "test/recorder",
+    "test/suite",
+    "token",
+    "token/jwk",
+    "token/tokencontext"
   ]
   revision = "7a49685a8135c385898dff8f46277a508eaf6cc5"
 
@@ -116,6 +129,21 @@
   ]
   revision = "5646a430cdeb66983d5ace3384e0a667c185abc7"
   version = "v1.3.0"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/gojuno/generator"
+  packages = ["."]
+  revision = "487ec858da35ab9b34dea233bb8d91c048645add"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/gojuno/minimock"
+  packages = [
+    ".",
+    "cmd/minimock"
+  ]
+  revision = "a5502dd2746ee6fc3fd58ad83d701d25e14d68d1"
 
 [[projects]]
   branch = "master"
@@ -395,6 +423,16 @@
 
 [[projects]]
   branch = "master"
+  name = "golang.org/x/crypto"
+  packages = [
+    "ed25519",
+    "ed25519/internal/edwards25519",
+    "pbkdf2"
+  ]
+  revision = "4d3f4d9ffa16a13f451c3b2999e9c49e9750bf06"
+
+[[projects]]
+  branch = "master"
   name = "golang.org/x/lint"
   packages = ["."]
   revision = "06c8688daad7faa9da5a0c2f163a3d14aac986ca"
@@ -430,11 +468,26 @@
   packages = [
     "cover",
     "go/ast/astutil",
+    "go/buildutil",
     "go/gcexportdata",
+    "go/internal/cgo",
     "go/internal/gcimporter",
-    "go/types/typeutil"
+    "go/loader",
+    "go/types/typeutil",
+    "imports",
+    "internal/fastwalk"
   ]
   revision = "90fa682c2a6e6a37b3a1364ce2fe1d5e41af9d6d"
+
+[[projects]]
+  name = "gopkg.in/square/go-jose.v2"
+  packages = [
+    ".",
+    "cipher",
+    "json"
+  ]
+  revision = "ef984e69dd356202fd4e4910d4d9c24468bdf0b8"
+  version = "v2.1.9"
 
 [[projects]]
   name = "gopkg.in/yaml.v2"
@@ -445,6 +498,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "2b5e02043f5173f0b83cfdf3e767e5f4475b6e8f182e27213bbf78963ddb6d5f"
+  inputs-digest = "6d0859cbbfa8e30c77a70a1d9f86fdf21396d72925664e6d8c084d13860ee19a"
   solver-name = "gps-cdcl"
   solver-version = 1

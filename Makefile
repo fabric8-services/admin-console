@@ -301,9 +301,19 @@ $(SERVER_BIN): prebuild-check deps generate
 	go build -v $(LDFLAGS) -o $(SERVER_BIN)
 
 
+# -------------------------------------------------------------------
+# Generate code
+# -------------------------------------------------------------------
 .PHONY: generate
 ## Generate GOA sources. Only necessary after clean of if changed `design` folder.
-generate: prebuild-check $(DESIGNS) $(GOAGEN_BIN) $(VENDOR_DIR)
+generate: generate-goa generate-mocks
+
+# -------------------------------------------------------------------
+# Generate GOA code
+# -------------------------------------------------------------------
+.PHONY: generate-goa
+## Generate GOA sources. Only necessary after clean of if changed `design` folder.
+generate-goa: prebuild-check $(DESIGNS) $(GOAGEN_BIN) $(VENDOR_DIR)
 	$(GOAGEN_BIN) app -d ${PACKAGE_NAME}/${DESIGN_DIR}
 	$(GOAGEN_BIN) controller -d ${PACKAGE_NAME}/${DESIGN_DIR} -o controller/ --pkg controller --app-pkg ${PACKAGE_NAME}/app
 	$(GOAGEN_BIN) gen -d ${PACKAGE_NAME}/${DESIGN_DIR} --pkg-path=github.com/fabric8-services/fabric8-common/goasupport/status --out app

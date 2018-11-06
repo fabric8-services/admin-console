@@ -344,3 +344,9 @@ func (c *Configuration) GetDiagnoseHTTPAddress() string {
 	}
 	return ""
 }
+
+// GetDevModePrivateKey returns additional public key which should be used by the admin console service in Dev Mode
+// Returns an error if the application is not running in dev mode
+func (c *Configuration) GetDevModePrivateKey() []byte {
+	return []byte(devModePrivateKeyID)
+}

@@ -9,6 +9,8 @@ import (
 	"runtime"
 	"time"
 
+	"github.com/fabric8-services/admin-console/application"
+
 	"github.com/fabric8-services/admin-console/migration"
 
 	"github.com/fabric8-services/admin-console/app"
@@ -18,6 +20,7 @@ import (
 	"github.com/fabric8-services/fabric8-common/log"
 	"github.com/fabric8-services/fabric8-common/metric"
 	"github.com/fabric8-services/fabric8-common/sentry"
+	"github.com/fabric8-services/fabric8-common/token"
 	"github.com/goadesign/goa"
 	goalogrus "github.com/goadesign/goa/logging/logrus"
 	"github.com/goadesign/goa/middleware"
@@ -109,11 +112,21 @@ func main() {
 			metric.WithRequestDurationBucket(prometheus.ExponentialBuckets(0.05, 2, 8))))
 	service.WithLogger(goalogrus.New(log.Logger()))
 
-	// service.Use(metric.Recorder())
+	appDB := application.NewGormApplication(db)
+	tokenParser, err := token.NewManager(config)
+	if err != nil {
+		log.Panic(context.TODO(), map[string]interface{}{
+			"err": err,
+		}, "failed to setup the token manager")
+	}
 
-	// Mount the 'status controller
+	// Mount the '/status' controller
 	statusCtrl := controller.NewStatusController(service)
 	app.MountStatusController(service, statusCtrl)
+
+	// Mount the '/search' controller
+	searchCtrl := controller.NewSearchController(service, config, appDB, tokenParser)
+	app.MountSearchController(service, searchCtrl)
 
 	log.Logger().Infoln("Git Commit SHA: ", app.Commit)
 	log.Logger().Infoln("UTC Build Time: ", app.BuildTime)
