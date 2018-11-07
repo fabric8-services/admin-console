@@ -455,6 +455,13 @@ $(GOCOVMERGE_BIN): prebuild-check
 # Clean targets
 #-------------------------------------------------------------------------------
 
+CLEAN_TARGETS += clean-generated-mocks
+.PHONY: clean-generated-mocks
+## Removes all coverage files
+clean-generated-mocks: 
+	-rm -rf ./test/generated
+
+
 CLEAN_TARGETS += clean-coverage
 .PHONY: clean-coverage
 ## Removes all coverage files

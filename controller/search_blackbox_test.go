@@ -14,24 +14,22 @@ import (
 	"github.com/fabric8-services/admin-console/application"
 	"github.com/fabric8-services/admin-console/controller"
 	testconfig "github.com/fabric8-services/admin-console/test/generated/configuration"
-	testjwt "github.com/fabric8-services/admin-console/test/jwt"
+	commonconfig "github.com/fabric8-services/fabric8-common/configuration"
 	"github.com/fabric8-services/fabric8-common/httpsupport"
 	"github.com/fabric8-services/fabric8-common/resource"
+	testauth "github.com/fabric8-services/fabric8-common/test/auth"
 	testrecorder "github.com/fabric8-services/fabric8-common/test/recorder"
 	testsuite "github.com/fabric8-services/fabric8-common/test/suite"
-	"github.com/fabric8-services/fabric8-common/token"
 
 	"github.com/goadesign/goa"
-	uuid "github.com/satori/go.uuid"
 	"github.com/stretchr/testify/require"
 )
 
-func newSearchController(config controller.SearchControllerConfiguration, db application.DB, tokenParser token.Parser, options ...httpsupport.HTTPProxyOption) (*goa.Service, *controller.SearchController) {
+func newSearchController(config controller.SearchControllerConfiguration, db application.DB, options ...httpsupport.HTTPProxyOption) (*goa.Service, *controller.SearchController) {
 	svc := goa.New("feature")
 	ctrl := controller.NewSearchController(svc,
 		config,
 		db,
-		tokenParser,
 		options...,
 	)
 	return svc, ctrl
@@ -57,32 +55,30 @@ func TestSearchController(t *testing.T) {
 func (s *SearchControllerBlackboxTestSuite) TestSearchUsers() {
 
 	// given
-	kid := "test-key"
 	config := testconfig.NewManagerConfigurationMock(s.T())
 	config.GetAuthServiceURLFunc = func() string {
 		return "https://test-auth"
 	}
 	config.GetDevModePrivateKeyFunc = func() []byte {
-		return []byte(testjwt.PrivateKey1)
+		return []byte(commonconfig.DevModeRsaPrivateKey)
 	}
 	r, err := testrecorder.New("search_blackbox_test")
 	require.NoError(s.T(), err)
 	defer r.Stop()
-	tokenParser, err := token.NewManager(config, httpsupport.WithRoundTripper(r))
 	require.NoError(s.T(), err)
-	svc, ctrl := newSearchController(config, s.app, tokenParser, httpsupport.WithProxyTransport(r))
+	// ctx := token.ContextWithTokenManager(tokenManager)
+	svc, ctrl := newSearchController(config, s.app, httpsupport.WithProxyTransport(r))
 
 	s.T().Run("ok", func(t *testing.T) {
 		// given
-		identityID := uuid.NewV4()
-		require.NoError(t, err)
-		ctx, err := testjwt.NewJWTContext(identityID.String(), kid, testjwt.PrivateKey1)
+		identity := testauth.NewIdentity()
+		ctx, _, err := testauth.EmbedUserTokenInContext(context.Background(), identity)
 		require.NoError(t, err)
 		// when
 		apptest.SearchUsersSearchOK(t, ctx, svc, ctrl, nil, nil, "foo")
 		// then check that an audit record was created
 		recordRepo := auditlog.NewRepository(s.DB)
-		records, total, err := recordRepo.ListByIdentityID(context.Background(), identityID, 0, 5)
+		records, total, err := recordRepo.ListByIdentityID(context.Background(), identity.ID, 0, 5)
 		require.NoError(t, err)
 		require.Equal(t, 1, total)
 		record := records[0]
@@ -97,25 +93,6 @@ func (s *SearchControllerBlackboxTestSuite) TestSearchUsers() {
 		t.Run("missing JWT", func(t *testing.T) {
 			// when/then
 			apptest.SearchUsersSearchUnauthorized(t, context.Background(), svc, ctrl, nil, nil, "foo")
-		})
-
-		t.Run("invalid JWT - invalid signing key", func(t *testing.T) {
-			// given
-			identityID := uuid.NewV4()
-			// using PrivateKey2 but sibling PublicKey2 has not been loaded in TokenManager
-			ctx, err := testjwt.NewJWTContext(identityID.String(), kid, testjwt.PrivateKey2)
-			require.NoError(t, err)
-			// when/then
-			apptest.SearchUsersSearchUnauthorized(t, ctx, svc, ctrl, nil, nil, "foo")
-		})
-
-		t.Run("invalid JWT - invalid sub", func(t *testing.T) {
-			// given
-			identityID := "not.a.uuid"
-			ctx, err := testjwt.NewJWTContext(identityID, kid, testjwt.PrivateKey1)
-			require.NoError(t, err)
-			// when/then
-			apptest.SearchUsersSearchUnauthorized(t, ctx, svc, ctrl, nil, nil, "foo")
 		})
 	})
 

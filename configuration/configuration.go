@@ -8,6 +8,8 @@ import (
 	"sync"
 	"time"
 
+	commonconfig "github.com/fabric8-services/fabric8-common/configuration"
+
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
@@ -348,5 +350,5 @@ func (c *Configuration) GetDiagnoseHTTPAddress() string {
 // GetDevModePrivateKey returns additional public key which should be used by the admin console service in Dev Mode
 // Returns an error if the application is not running in dev mode
 func (c *Configuration) GetDevModePrivateKey() []byte {
-	return []byte(devModePrivateKeyID)
+	return []byte(commonconfig.DevModeRsaPrivateKey)
 }

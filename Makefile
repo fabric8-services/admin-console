@@ -230,9 +230,9 @@ clean-object-files:
 	go clean ./...
 
 CLEAN_TARGETS += clean-generated
-.PHONY: clean-generated
+.PHONY: clean-generated-goa
 # Removes all generated code.
-clean-generated:
+clean-generated-goa:
 	-rm -rf ./app
 	-rm -rf ./swagger/
 

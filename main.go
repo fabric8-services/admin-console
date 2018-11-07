@@ -9,22 +9,23 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/fabric8-services/admin-console/application"
-
-	"github.com/fabric8-services/admin-console/migration"
-
 	"github.com/fabric8-services/admin-console/app"
+	"github.com/fabric8-services/admin-console/application"
 	"github.com/fabric8-services/admin-console/configuration"
 	"github.com/fabric8-services/admin-console/controller"
+	"github.com/fabric8-services/admin-console/migration"
 	"github.com/fabric8-services/fabric8-common/closeable"
+	"github.com/fabric8-services/fabric8-common/goamiddleware"
 	"github.com/fabric8-services/fabric8-common/log"
 	"github.com/fabric8-services/fabric8-common/metric"
 	"github.com/fabric8-services/fabric8-common/sentry"
 	"github.com/fabric8-services/fabric8-common/token"
+
 	"github.com/goadesign/goa"
 	goalogrus "github.com/goadesign/goa/logging/logrus"
 	"github.com/goadesign/goa/middleware"
 	"github.com/goadesign/goa/middleware/gzip"
+	"github.com/goadesign/goa/middleware/security/jwt"
 	"github.com/google/gops/agent"
 	"github.com/jinzhu/gorm"
 	"github.com/prometheus/client_golang/prometheus"
@@ -113,19 +114,26 @@ func main() {
 	service.WithLogger(goalogrus.New(log.Logger()))
 
 	appDB := application.NewGormApplication(db)
-	tokenParser, err := token.NewManager(config)
+	tokenManager, err := token.NewManager(config)
 	if err != nil {
-		log.Panic(context.TODO(), map[string]interface{}{
+		log.Panic(nil, map[string]interface{}{
 			"err": err,
-		}, "failed to setup the token manager")
+		}, "failed to create token manager")
 	}
+	// Middleware that extracts and stores the token in the context
+	jwtMiddlewareTokenContext := goamiddleware.TokenContext(tokenManager, app.NewJWTSecurity())
+	service.Use(jwtMiddlewareTokenContext)
+
+	service.Use(token.InjectTokenManager(tokenManager))
+	service.Use(log.LogRequest(config.IsDeveloperModeEnabled()))
+	app.UseJWTMiddleware(service, jwt.New(tokenManager.PublicKeys(), nil, app.NewJWTSecurity()))
 
 	// Mount the '/status' controller
 	statusCtrl := controller.NewStatusController(service)
 	app.MountStatusController(service, statusCtrl)
 
 	// Mount the '/search' controller
-	searchCtrl := controller.NewSearchController(service, config, appDB, tokenParser)
+	searchCtrl := controller.NewSearchController(service, config, appDB)
 	app.MountSearchController(service, searchCtrl)
 
 	log.Logger().Infoln("Git Commit SHA: ", app.Commit)
