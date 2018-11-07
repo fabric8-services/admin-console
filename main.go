@@ -114,7 +114,7 @@ func main() {
 	service.WithLogger(goalogrus.New(log.Logger()))
 
 	appDB := application.NewGormApplication(db)
-	tokenManager, err := token.NewManager(config)
+	tokenManager, err := token.DefaultManager(config)
 	if err != nil {
 		log.Panic(nil, map[string]interface{}{
 			"err": err,
