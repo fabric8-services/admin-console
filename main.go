@@ -124,7 +124,6 @@ func main() {
 	// Middleware that extracts and stores the token in the context
 	jwtMiddlewareTokenContext := goamiddleware.TokenContext(tokenManager, app.NewJWTSecurity())
 	service.Use(jwtMiddlewareTokenContext)
-
 	service.Use(token.InjectTokenManager(tokenManager))
 	service.Use(log.LogRequest(config.IsDeveloperModeEnabled()))
 	app.UseJWTMiddleware(service, jwt.New(tokenManager.PublicKeys(), nil, app.NewJWTSecurity()))
