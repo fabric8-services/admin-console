@@ -129,26 +129,22 @@ test-all: prebuild-check test-unit test-integration
 
 .PHONY: test-unit-with-coverage
 # Runs the unit tests and produces coverage files for each package.
-test-unit-with-coverage: prebuild-check clean-coverage-unit $(COV_PATH_UNIT)
+test-unit-with-coverage: prebuild-check clean-coverage-unit generate $(COV_PATH_UNIT)  
 
 .PHONY: test-unit
-test-unit: prebuild-check $(SOURCES) ## Runs the unit tests and WITHOUT producing coverage files for each package.
+test-unit: prebuild-check generate $(SOURCES) ## Runs the unit tests and WITHOUT producing coverage files for each package.
 	$(call log-info,"Running test: $@")
 	$(eval TEST_PACKAGES:=$(shell go list ./... | grep -v $(ALL_PKGS_EXCLUDE_PATTERN)))
 	ADMIN_DEVELOPER_MODE_ENABLED=1 ADMIN_RESOURCE_UNIT_TEST=1 ADMIN_LOG_LEVEL=$(ADMIN_LOG_LEVEL) go test -vet off $(GO_TEST_VERBOSITY_FLAG) $(TEST_PACKAGES)
 
-.PHONY: test-unit-junit
-test-unit-junit: prebuild-check ${GO_JUNIT_BIN} ${TMP_PATH}
-	bash -c "set -o pipefail; make test-unit 2>&1 | tee >(${GO_JUNIT_BIN} > ${TMP_PATH}/junit.xml)"
- 
 .PHONY: test-integration-with-coverage
 # Runs the integration tests and produces coverage files for each package.
 # Make sure you ran "make integration-test-env-prepare" before you run this target.
-test-integration-with-coverage: prebuild-check clean-coverage-integration migrate-database $(COV_PATH_INTEGRATION)
+test-integration-with-coverage: prebuild-check clean-coverage-integration generate migrate-database $(COV_PATH_INTEGRATION)
 
 .PHONY: test-integration 
 ## Make sure you ran "make integration-test-env-prepare" before you run this target.
-test-integration: prebuild-check migrate-database $(SOURCES) ## Runs the integration tests WITHOUT producing coverage files for each package.
+test-integration: prebuild-check generate migrate-database $(SOURCES) ## Runs the integration tests WITHOUT producing coverage files for each package.
 	$(call log-info,"Running test: $@")
 	$(eval TEST_PACKAGES:=$(shell go list ./... | grep -v $(ALL_PKGS_EXCLUDE_PATTERN)))
 	ADMIN_DEVELOPER_MODE_ENABLED=1 F8_RESOURCE_DATABASE=1 ADMIN_RESOURCE_UNIT_TEST=0 ADMIN_LOG_LEVEL=$(ADMIN_LOG_LEVEL) go test -vet off $(GO_TEST_VERBOSITY_FLAG) $(TEST_PACKAGES)
@@ -429,6 +425,22 @@ $(COV_PATH_INTEGRATION): $(SOURCES) $(GOCOVMERGE_BIN)
 	$(foreach package, $(TEST_PACKAGES), $(call test-package,$(TEST_NAME),$(package),$(COV_PATH_INTEGRATION),$(ERRORS_FILE),F8_RESOURCE_DATABASE=1 ADMIN_RESOURCE_UNIT_TEST=0,$(ALL_PKGS_COMMA_SEPARATED)))
 	$(call check-test-results,$(ERRORS_FILE))
 
+# -------------------------------------------------------------------
+# Generate mocks 
+# -------------------------------------------------------------------
+
+$(MINIMOCK_BIN):
+	@echo "building the minimock binary..."
+	@cd $(VENDOR_DIR)/github.com/gojuno/minimock/cmd/minimock && go build -v minimock.go
+
+.PHONY: generate-mocks
+## Generate mocks
+generate-mocks: deps $(MINIMOCK_BIN) 
+	@echo "Generating mocks..."
+	-mkdir -p test/generated/configuration
+	$(MINIMOCK_BIN) -i vendor/github.com/fabric8-services/fabric8-common/token.ManagerConfiguration -o ./test/generated/configuration/manager_configuration_mock.go -t ManagerConfigurationMock
+	
+
 #-------------------------------------------------------------------------------
 # Additional tools to build
 #-------------------------------------------------------------------------------
@@ -442,6 +454,13 @@ $(GOCOVMERGE_BIN): prebuild-check
 #-------------------------------------------------------------------------------
 # Clean targets
 #-------------------------------------------------------------------------------
+
+CLEAN_TARGETS += clean-generated-mocks
+.PHONY: clean-generated-mocks
+## Removes all coverage files
+clean-generated-mocks: 
+	-rm -rf ./test/generated
+
 
 CLEAN_TARGETS += clean-coverage
 .PHONY: clean-coverage
