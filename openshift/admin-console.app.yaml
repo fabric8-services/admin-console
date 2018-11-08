@@ -144,7 +144,7 @@ objects:
     sessionAffinity: null
 parameters:
 - name: IMAGE
-  value: quay.io/openshiftio/rhel-fabric8-services-fabric8-admin-console
+  value: quay.io/openshiftio/rhel-fabric8-services-admin-console
 - name: IMAGE_TAG
   value: latest
 - description: Number of deployment replicas
