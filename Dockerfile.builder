@@ -23,7 +23,7 @@ RUN test -n $USE_GO_VERSION_FROM_WEBSITE \
     && sha256sum -c checksum \
     && tar -C /usr/local -xzf go1.10.linux-amd64.tar.gz \
     && rm -f go1.10.linux-amd64.tar.gz \
-    && go version
+    && /usr/local/go/bin/go version
 ENV PATH=$PATH:/usr/local/go/bin
 
 # Get dep for Go package management and make sure the directory has full rwz permissions for non-root users
