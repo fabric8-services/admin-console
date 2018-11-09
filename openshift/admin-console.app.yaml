@@ -107,10 +107,6 @@ objects:
               cpu: 400m
               memory: 1.5Gi
           terminationMessagePath: /dev/termination-log
-          volumeMounts:
-          - mountPath: /etc/fabric8/
-            name: admin-console-configs
-            readOnly: true
         dnsPolicy: ClusterFirst
         restartPolicy: Always
         securityContext: {}
