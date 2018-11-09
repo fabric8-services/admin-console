@@ -68,7 +68,7 @@ objects:
             valueFrom:
               configMapKeyRef:
                 name: admin-console
-                key: postgres.connection.maxopen
+                key: postgres.sslmode
           - name: ADMIN_AUTH_URL
             valueFrom:
               configMapKeyRef:
