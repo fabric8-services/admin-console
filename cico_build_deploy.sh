@@ -2,8 +2,12 @@
 
 . cico_setup.sh
 
-cico_setup;
-
-run_tests_without_coverage;
+load_jenkins_vars
+ run_tests_without_coverage;	if [ ! -f .cico-prepare ]; then
+    install_deps
+    prepare
+     run_tests_without_coverage;
+     touch .cico-prepare
+fi
 
 deploy;
