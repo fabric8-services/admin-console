@@ -22,7 +22,7 @@ RUN test -n $USE_GO_VERSION_FROM_WEBSITE \
     && echo "b5a64335f1490277b585832d1f6c7f8c6c11206cba5cd3f771dcb87b98ad1a33  go1.10.linux-amd64.tar.gz" > checksum \
     && sha256sum -c checksum \
     && tar -C /usr/local -xzf go1.10.linux-amd64.tar.gz \
-    && rm -f go1.10.linux-amd64.tar.gz
+    && rm -f go1.10.linux-amd64.tar.gz \
     && go version
 ENV PATH=$PATH:/usr/local/go/bin
 
