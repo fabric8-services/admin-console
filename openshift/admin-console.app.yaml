@@ -64,6 +64,11 @@ objects:
               configMapKeyRef:
                 name: admin-console
                 key: postgres.connection.maxopen
+          - name: ADMIN_POSTGRES_SSLMODE
+            valueFrom:
+              configMapKeyRef:
+                name: admin-console
+                key: postgres.sslmode
           - name: ADMIN_AUTH_URL
             valueFrom:
               configMapKeyRef:
@@ -106,15 +111,6 @@ objects:
           - mountPath: /etc/fabric8/
             name: admin-console-configs
             readOnly: true
-        volumes:
-        - name: admin-console-configs
-          secret:
-            secretName: admin-console-config-files
-            items:
-            - key: service.account.secrets
-              path: service-account-secrets.conf
-            - key: oso.clusters
-              path: oso-clusters.conf
         dnsPolicy: ClusterFirst
         restartPolicy: Always
         securityContext: {}
