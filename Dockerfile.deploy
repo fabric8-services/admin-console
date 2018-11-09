@@ -9,7 +9,6 @@ ENV ADMIN_CONSOLE_USER_NAME=admin-console
 RUN useradd --no-create-home -s /bin/bash ${ADMIN_CONSOLE_USER_NAME}
 
 COPY bin/admin-console ${ADMIN_CONSOLE_INSTALL_PREFIX}/bin/admin-console
-COPY config.yaml ${ADMIN_CONSOLE_INSTALL_PREFIX}/etc/config.yaml
 
 # Install little pcp pmcd server for metrics collection
 # would prefer only pmcd, and not the /bin/pm*tools etc.

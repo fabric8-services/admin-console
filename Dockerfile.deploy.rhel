@@ -10,7 +10,6 @@ ENV ADMIN_USER_NAME=admin-console
 RUN useradd --no-create-home -s /bin/bash ${ADMIN_USER_NAME}
 
 COPY bin/admin-console ${ADMIN_INSTALL_PREFIX}/bin/admin-console
-COPY config.yaml ${ADMIN_INSTALL_PREFIX}/etc/config.yaml
 
 COPY ./admin-console+pmcd.sh /admin-console+pmcd.sh
 EXPOSE 44321
