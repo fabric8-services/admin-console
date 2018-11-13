@@ -673,7 +673,6 @@
     "github.com/goadesign/goa/middleware",
     "github.com/goadesign/goa/middleware/gzip",
     "github.com/goadesign/goa/middleware/security/jwt",
-    "github.com/gojuno/minimock",
     "github.com/gojuno/minimock/cmd/minimock",
     "github.com/golang/lint/golint",
     "github.com/google/gops/agent",
