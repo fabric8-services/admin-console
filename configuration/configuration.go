@@ -88,15 +88,18 @@ func New() (*Configuration, error) {
 	c.setConfigDefaults()
 
 	// Check sensitive default configuration
-	if c.IsDeveloperModeEnabled() {
-		c.appendDefaultConfigErrorMessage("developer Mode is enabled")
-	}
 	c.validateURL(c.GetAuthServiceURL(), "Auth service")
 	if c.GetAuthServiceURL() == "http://localhost" {
 		c.appendDefaultConfigErrorMessage("environment is expected to be set to 'production' or 'prod-preview'")
 	}
 	if c.GetSentryDSN() == "" {
 		c.appendDefaultConfigErrorMessage("Sentry DSN is empty")
+	}
+	if c.GetPostgresPassword() == defaultDBPassword {
+		c.appendDefaultConfigErrorMessage("default DB password is used")
+	}
+	if c.IsDeveloperModeEnabled() {
+		c.appendDefaultConfigErrorMessage("developer mode is enabled")
 	}
 
 	return c, nil

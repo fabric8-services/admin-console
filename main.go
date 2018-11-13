@@ -129,7 +129,8 @@ func main() {
 	app.UseJWTMiddleware(service, jwt.New(tokenManager.PublicKeys(), nil, app.NewJWTSecurity()))
 
 	// Mount the '/status' controller
-	statusCtrl := controller.NewStatusController(service)
+	dbChecker := controller.NewGormDBChecker(db)
+	statusCtrl := controller.NewStatusController(service, dbChecker, config)
 	app.MountStatusController(service, statusCtrl)
 
 	// Mount the '/search' controller

@@ -60,7 +60,7 @@ ignored = [
 
 [[constraint]]
   name = "github.com/fabric8-services/fabric8-common"
-  revision = "45960af9689499e9f5e5a4ebd142a8189a19ca1e"
+  revision = "c434d96a8f58537ec899abaf98c8f8118c8ca27c"
 
 [[constraint]]
   name = "github.com/jinzhu/gorm"

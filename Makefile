@@ -113,7 +113,7 @@ help:/
 GIT_BIN := $(shell command -v $(GIT_BIN_NAME) 2> /dev/null)
 DEP_BIN_DIR := $(TMP_PATH)/bin
 DEP_BIN := $(DEP_BIN_DIR)/$(DEP_BIN_NAME)
-DEP_VERSION=v0.4.1
+DEP_VERSION=v0.5.0
 GO_BIN := $(shell command -v $(GO_BIN_NAME) 2> /dev/null)
 
 $(INSTALL_PREFIX):
@@ -257,7 +257,8 @@ clean: $(CLEAN_TARGETS)
 # run in dev mode
 # -------------------------------------------------------------------
 .PHONY: dev
-dev: prebuild-check deps generate $(FRESH_BIN) ## run the server locally
+## run the server locally
+dev: prebuild-check deps generate $(FRESH_BIN) 
 	ADMIN_DEVELOPER_MODE_ENABLED=true $(FRESH_BIN)
 
 # -------------------------------------------------------------------
