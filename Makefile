@@ -198,7 +198,7 @@ format-go-code: prebuild-check ## Formats any go file that differs from gofmt's 
 # -------------------------------------------------------------------
 .PHONY: check-go-code
 check-go-code: $(GOLANGCI_LINT_BIN)
-	$(GOLANGCI_LINT_BIN) run --no-config --disable-all -E typecheck
+	$(GOLANGCI_LINT_BIN) run
 
 # install dep in a the tmp/bin dir of the repo
 $(GOLANGCI_LINT_BIN): $(TMP_BIN_DIR) 
