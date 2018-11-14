@@ -26,7 +26,7 @@ import (
 )
 
 func newSearchController(config controller.SearchControllerConfiguration, db application.DB, options ...httpsupport.HTTPProxyOption) (*goa.Service, *controller.SearchController) {
-	svc := goa.New("feature")
+	svc := goa.New("search")
 	ctrl := controller.NewSearchController(svc,
 		config,
 		db,

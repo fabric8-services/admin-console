@@ -9,8 +9,8 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-// StatusController implements the status resource.
-type statusConfiguration interface {
+// StatusControllerConfiguration the configuration for the staus controller.
+type StatusControllerConfiguration interface {
 	IsDeveloperModeEnabled() bool
 	DefaultConfigurationError() error
 }
@@ -24,11 +24,11 @@ type DBChecker interface {
 type StatusController struct {
 	*goa.Controller
 	dbChecker DBChecker
-	config    statusConfiguration
+	config    StatusControllerConfiguration
 }
 
 // NewStatusController creates a status controller.
-func NewStatusController(service *goa.Service, dbChecker DBChecker, config statusConfiguration) *StatusController {
+func NewStatusController(service *goa.Service, dbChecker DBChecker, config StatusControllerConfiguration) *StatusController {
 	return &StatusController{
 		Controller: service.NewController("StatusController"),
 		dbChecker:  dbChecker,
