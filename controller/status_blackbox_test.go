@@ -39,7 +39,7 @@ func newStatusController(dbchecker controller.DBChecker, config controller.Statu
 func (s *StatusControllerBlackboxTestSuite) TestShowStatus() {
 
 	dbChecker := testcontroller.NewDBCheckerMock(s.T())
-	config := testcontroller.NewStatusConfigurationMock(s.T())
+	config := testcontroller.NewStatusControllerConfigurationMock(s.T())
 	svc, ctrl := newStatusController(dbChecker, config)
 	ctx := context.Background()
 
