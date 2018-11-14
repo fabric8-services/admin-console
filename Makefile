@@ -191,6 +191,17 @@ analyze-go-code: deps generate ## Run golangci analysis over the code.
 format-go-code: prebuild-check ## Formats any go file that differs from gofmt's style
 	@gofmt -s -l -w ${GOFORMAT_FILES}
 
+# -------------------------------------------------------------------
+# Code format/check with golangci-lint
+# -------------------------------------------------------------------
+.PHONY: check-go-code
+check-go-code:
+ifndef $(GOLANGCI_LINT_BIN)
+	go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
+endif
+	$(GOLANGCI_LINT_BIN) run --no-config --disable-all -E typecheck
+
+
 
 # -------------------------------------------------------------------
 # support for running in dev mode
