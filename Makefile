@@ -111,9 +111,11 @@ help:/
 
 # Find all required tools:
 GIT_BIN := $(shell command -v $(GIT_BIN_NAME) 2> /dev/null)
-DEP_BIN_DIR := $(TMP_PATH)/bin
-DEP_BIN := $(DEP_BIN_DIR)/$(DEP_BIN_NAME)
+TMP_BIN_DIR := $(TMP_PATH)/bin
+DEP_BIN := $(TMP_BIN_DIR)/$(DEP_BIN_NAME)
 DEP_VERSION=v0.5.0
+GOLANGCI_LINT_VERSION=1.12
+GOLANGCI_LINT_BIN=$(TMP_BIN_DIR)/$(GOLANGCI_LINT_BIN_NAME)
 GO_BIN := $(shell command -v $(GO_BIN_NAME) 2> /dev/null)
 
 $(INSTALL_PREFIX):
@@ -137,26 +139,26 @@ endif
 # -------------------------------------------------------------------
 # deps
 # -------------------------------------------------------------------
-$(DEP_BIN_DIR):
-	mkdir -p $(DEP_BIN_DIR)
+$(TMP_BIN_DIR):
+	mkdir -p $(TMP_BIN_DIR)
 
 .PHONY: deps 
 ## Download build dependencies.
 deps: $(DEP_BIN) $(VENDOR_DIR) 
 
 # install dep in a the tmp/bin dir of the repo
-$(DEP_BIN): $(DEP_BIN_DIR) 
-	@echo "Installing 'dep' $(DEP_VERSION) at '$(DEP_BIN_DIR)'..."
-	mkdir -p $(DEP_BIN_DIR)
+$(DEP_BIN): $(TMP_BIN_DIR) 
+	@echo "Installing 'dep' $(DEP_VERSION) at '$(TMP_BIN_DIR)'..."
+	mkdir -p $(TMP_BIN_DIR)
 ifeq ($(UNAME_S),Darwin)
 	@curl -L -s https://github.com/golang/dep/releases/download/$(DEP_VERSION)/dep-darwin-amd64 -o $(DEP_BIN) 
-	@cd $(DEP_BIN_DIR) && \
-	curl -L -s https://github.com/golang/dep/releases/download/$(DEP_VERSION)/dep-darwin-amd64.sha256 -o $(DEP_BIN_DIR)/dep-darwin-amd64.sha256 && \
+	@cd $(TMP_BIN_DIR) && \
+	curl -L -s https://github.com/golang/dep/releases/download/$(DEP_VERSION)/dep-darwin-amd64.sha256 -o $(TMP_BIN_DIR)/dep-darwin-amd64.sha256 && \
 	echo "1a7bdb0d6c31ecba8b3fd213a1170adf707657123e89dff234871af9e0498be2  dep" > dep-darwin-amd64.sha256 && \
 	shasum -a 256 --check dep-darwin-amd64.sha256
 else
 	@curl -L -s https://github.com/golang/dep/releases/download/$(DEP_VERSION)/dep-linux-amd64 -o $(DEP_BIN)
-	@cd $(DEP_BIN_DIR) && \
+	@cd $(TMP_BIN_DIR) && \
 	echo "287b08291e14f1fae8ba44374b26a2b12eb941af3497ed0ca649253e21ba2f83  dep" > dep-linux-amd64.sha256 && \
 	sha256sum -c dep-linux-amd64.sha256
 endif
@@ -195,11 +197,29 @@ format-go-code: prebuild-check ## Formats any go file that differs from gofmt's 
 # Code format/check with golangci-lint
 # -------------------------------------------------------------------
 .PHONY: check-go-code
-check-go-code:
-ifndef $(GOLANGCI_LINT_BIN)
-	go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
-endif
+check-go-code: $(GOLANGCI_LINT_BIN)
 	$(GOLANGCI_LINT_BIN) run --no-config --disable-all -E typecheck
+
+# install dep in a the tmp/bin dir of the repo
+$(GOLANGCI_LINT_BIN): $(TMP_BIN_DIR) 
+	@echo "Installing 'golang-ci-lint' $(GOLANGCI_LINT_VERSION) at '$(TMP_BIN_DIR)'..."
+	mkdir -p $(TMP_BIN_DIR)
+ifeq ($(UNAME_S),Darwin)
+	curl -L -s https://github.com/golangci/golangci-lint/releases/download/v$(GOLANGCI_LINT_VERSION)/golangci-lint-$(GOLANGCI_LINT_VERSION)-darwin-amd64.tar.gz -o $(GOLANGCI_LINT_BIN)-$(GOLANGCI_LINT_VERSION)-darwin-amd64.tar.gz && \
+	cd $(TMP_BIN_DIR) && curl -L -s https://github.com/golangci/golangci-lint/releases/download/v$(GOLANGCI_LINT_VERSION)/golangci-lint-$(GOLANGCI_LINT_VERSION)-checksums.txt -o  golangci-lint-$(GOLANGCI_LINT_VERSION)-checksums.txt && \
+	grep "darwin-amd64" golangci-lint-$(GOLANGCI_LINT_VERSION)-checksums.txt > golangci-lint-$(GOLANGCI_LINT_VERSION)-checksum-darwin-amd64.txt && \
+	shasum -a 256 --check golangci-lint-$(GOLANGCI_LINT_VERSION)-checksum-darwin-amd64.txt && \
+	tar xvf $(GOLANGCI_LINT_BIN)-$(GOLANGCI_LINT_VERSION)-darwin-amd64.tar.gz -C $(TMP_BIN_DIR) && \
+	mv $(TMP_BIN_DIR)/golangci-lint-$(GOLANGCI_LINT_VERSION)-darwin-amd64/golangci-lint $(GOLANGCI_LINT_BIN)
+else
+	curl -L -s https://github.com/golangci/golangci-lint/releases/download/v$(GOLANGCI_LINT_VERSION)/golangci-lint-$(GOLANGCI_LINT_VERSION)-linux-amd64.tar.gz -o $(GOLANGCI_LINT_BIN)-$(GOLANGCI_LINT_VERSION)-linux-amd64.tar.gz && \
+	cd $(TMP_BIN_DIR) && curl -L -s https://github.com/golangci/golangci-lint/releases/download/v$(GOLANGCI_LINT_VERSION)/golangci-lint-$(GOLANGCI_LINT_VERSION)-checksums.txt -o  golangci-lint-$(GOLANGCI_LINT_VERSION)-checksums.txt && \
+	grep "linux-amd64" golangci-lint-$(GOLANGCI_LINT_VERSION)-checksums.txt > golangci-lint-$(GOLANGCI_LINT_VERSION)-checksum-linux-amd64.txt && \
+	sha256sum -c golangci-lint-$(GOLANGCI_LINT_VERSION)-checksum-linux-amd64.txt && \
+	tar xvf $(GOLANGCI_LINT_BIN)-$(GOLANGCI_LINT_VERSION)-linux-amd64.tar.gz -C $(TMP_BIN_DIR) && \
+	mv $(TMP_BIN_DIR)/golangci-lint-$(GOLANGCI_LINT_VERSION)-linux-amd64/golangci-lint $(GOLANGCI_LINT_BIN)
+endif
+	chmod +x $(GOLANGCI_LINT_BIN)	
 
 
 
