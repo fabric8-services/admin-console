@@ -111,9 +111,11 @@ help:/
 
 # Find all required tools:
 GIT_BIN := $(shell command -v $(GIT_BIN_NAME) 2> /dev/null)
-DEP_BIN_DIR := $(TMP_PATH)/bin
-DEP_BIN := $(DEP_BIN_DIR)/$(DEP_BIN_NAME)
-DEP_VERSION=v0.4.1
+TMP_BIN_DIR := $(TMP_PATH)/bin
+DEP_BIN := $(TMP_BIN_DIR)/$(DEP_BIN_NAME)
+DEP_VERSION=v0.5.0
+GOLANGCI_LINT_VERSION=1.12
+GOLANGCI_LINT_BIN=$(TMP_BIN_DIR)/$(GOLANGCI_LINT_BIN_NAME)
 GO_BIN := $(shell command -v $(GO_BIN_NAME) 2> /dev/null)
 
 $(INSTALL_PREFIX):
@@ -137,27 +139,27 @@ endif
 # -------------------------------------------------------------------
 # deps
 # -------------------------------------------------------------------
-$(DEP_BIN_DIR):
-	mkdir -p $(DEP_BIN_DIR)
+$(TMP_BIN_DIR):
+	@echo "making $(TMP_BIN_DIR)"
+	@mkdir -p $(TMP_BIN_DIR)
 
 .PHONY: deps 
 ## Download build dependencies.
 deps: $(DEP_BIN) $(VENDOR_DIR) 
-
+	@dep ensure -v
 # install dep in a the tmp/bin dir of the repo
-$(DEP_BIN): $(DEP_BIN_DIR) 
-	@echo "Installing 'dep' $(DEP_VERSION) at '$(DEP_BIN_DIR)'..."
-	mkdir -p $(DEP_BIN_DIR)
+$(DEP_BIN): $(TMP_BIN_DIR) 
+	@echo "Installing 'dep' $(DEP_VERSION) at '$(TMP_BIN_DIR)'..."
 ifeq ($(UNAME_S),Darwin)
 	@curl -L -s https://github.com/golang/dep/releases/download/$(DEP_VERSION)/dep-darwin-amd64 -o $(DEP_BIN) 
-	@cd $(DEP_BIN_DIR) && \
-	curl -L -s https://github.com/golang/dep/releases/download/$(DEP_VERSION)/dep-darwin-amd64.sha256 -o $(DEP_BIN_DIR)/dep-darwin-amd64.sha256 && \
-	echo "1544afdd4d543574ef8eabed343d683f7211202a65380f8b32035d07ce0c45ef  dep" > dep-darwin-amd64.sha256 && \
+	@cd $(TMP_BIN_DIR) && \
+	curl -L -s https://github.com/golang/dep/releases/download/$(DEP_VERSION)/dep-darwin-amd64.sha256 -o $(TMP_BIN_DIR)/dep-darwin-amd64.sha256 && \
+	echo "1a7bdb0d6c31ecba8b3fd213a1170adf707657123e89dff234871af9e0498be2  dep" > dep-darwin-amd64.sha256 && \
 	shasum -a 256 --check dep-darwin-amd64.sha256
 else
 	@curl -L -s https://github.com/golang/dep/releases/download/$(DEP_VERSION)/dep-linux-amd64 -o $(DEP_BIN)
-	@cd $(DEP_BIN_DIR) && \
-	echo "31144e465e52ffbc0035248a10ddea61a09bf28b00784fd3fdd9882c8cbb2315  dep" > dep-linux-amd64.sha256 && \
+	@cd $(TMP_BIN_DIR) && \
+	echo "287b08291e14f1fae8ba44374b26a2b12eb941af3497ed0ca649253e21ba2f83  dep" > dep-linux-amd64.sha256 && \
 	sha256sum -c dep-linux-amd64.sha256
 endif
 	@chmod +x $(DEP_BIN)
@@ -172,6 +174,7 @@ $(VENDOR_DIR): Gopkg.toml
 GOFORMAT_FILES := $(shell find  . -name '*.go' | grep -vEf .gofmt_exclude)
 
 .PHONY: check-go-format
+# Exists with an error if there are files whose formatting differs from gofmt's
 check-go-format: prebuild-check deps ## Exists with an error if there are files whose formatting differs from gofmt's
 	@gofmt -s -l ${GOFORMAT_FILES} 2>&1 \
 		| tee /tmp/gofmt-errors \
@@ -182,15 +185,48 @@ check-go-format: prebuild-check deps ## Exists with an error if there are files 
 	|| true
 
 .PHONY: analyze-go-code 
+# Run golangci analysis over the code.
 analyze-go-code: deps generate ## Run golangci analysis over the code.
 	$(info >>--- RESULTS: GOLANGCI CODE ANALYSIS ---<<)
 	@go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
 	@golangci-lint run
 
 .PHONY: format-go-code
+# Formats any go file that differs from gofmt's style
 format-go-code: prebuild-check ## Formats any go file that differs from gofmt's style
 	@gofmt -s -l -w ${GOFORMAT_FILES}
 
+# -------------------------------------------------------------------
+# Code format/check with golangci-lint
+# -------------------------------------------------------------------
+.PHONY: check-go-code
+## Checks the code with golangci-lint (see .golangci.yaml)
+check-go-code: $(GOLANGCI_LINT_BIN) generate
+	@echo "checking code..."
+	$(GOLANGCI_LINT_BIN) run
+
+# install golangci-lint in the 'tmp/bin' dir of the repo
+$(GOLANGCI_LINT_BIN): $(TMP_BIN_DIR) 
+	@echo "Unable to locate $(GOLANGCI_LINT_BIN)"
+	@ls -al $(GOLANGCI_LINT_BIN)
+	@echo "Installing 'golang-ci-lint' $(GOLANGCI_LINT_VERSION) at '$(TMP_BIN_DIR)' ..."
+ifeq ($(UNAME_S),Darwin)
+	@curl -L -s https://github.com/golangci/golangci-lint/releases/download/v$(GOLANGCI_LINT_VERSION)/golangci-lint-$(GOLANGCI_LINT_VERSION)-darwin-amd64.tar.gz -o $(GOLANGCI_LINT_BIN)-$(GOLANGCI_LINT_VERSION)-darwin-amd64.tar.gz && \
+	cd $(TMP_BIN_DIR) && curl -L -s https://github.com/golangci/golangci-lint/releases/download/v$(GOLANGCI_LINT_VERSION)/golangci-lint-$(GOLANGCI_LINT_VERSION)-checksums.txt -o  golangci-lint-$(GOLANGCI_LINT_VERSION)-checksums.txt && \
+	grep "darwin-amd64" golangci-lint-$(GOLANGCI_LINT_VERSION)-checksums.txt > golangci-lint-$(GOLANGCI_LINT_VERSION)-checksum-darwin-amd64.txt && \
+	shasum -a 256 --check golangci-lint-$(GOLANGCI_LINT_VERSION)-checksum-darwin-amd64.txt && \
+	tar xvf $(GOLANGCI_LINT_BIN)-$(GOLANGCI_LINT_VERSION)-darwin-amd64.tar.gz -C $(TMP_BIN_DIR) && \
+	mv $(TMP_BIN_DIR)/golangci-lint-$(GOLANGCI_LINT_VERSION)-darwin-amd64/golangci-lint $(GOLANGCI_LINT_BIN)
+else
+	@curl -L -s https://github.com/golangci/golangci-lint/releases/download/v$(GOLANGCI_LINT_VERSION)/golangci-lint-$(GOLANGCI_LINT_VERSION)-linux-amd64.tar.gz -o $(GOLANGCI_LINT_BIN)-$(GOLANGCI_LINT_VERSION)-linux-amd64.tar.gz && \
+	cd $(TMP_BIN_DIR) && curl -L -s https://github.com/golangci/golangci-lint/releases/download/v$(GOLANGCI_LINT_VERSION)/golangci-lint-$(GOLANGCI_LINT_VERSION)-checksums.txt -o  golangci-lint-$(GOLANGCI_LINT_VERSION)-checksums.txt && \
+	grep "linux-amd64" golangci-lint-$(GOLANGCI_LINT_VERSION)-checksums.txt > golangci-lint-$(GOLANGCI_LINT_VERSION)-checksum-linux-amd64.txt && \
+	sha256sum -c golangci-lint-$(GOLANGCI_LINT_VERSION)-checksum-linux-amd64.txt && \
+	tar xvf $(GOLANGCI_LINT_BIN)-$(GOLANGCI_LINT_VERSION)-linux-amd64.tar.gz -C $(TMP_BIN_DIR) && \
+	mv $(TMP_BIN_DIR)/golangci-lint-$(GOLANGCI_LINT_VERSION)-linux-amd64/golangci-lint $(GOLANGCI_LINT_BIN)
+endif
+	@chmod +x $(GOLANGCI_LINT_BIN)
+	@ls -al $(GOLANGCI_LINT_BIN)
 
 # -------------------------------------------------------------------
 # support for running in dev mode
@@ -230,8 +266,13 @@ clean-object-files:
 	go clean ./...
 
 CLEAN_TARGETS += clean-generated
-.PHONY: clean-generated-goa
+.PHONY: clean-generated
 # Removes all generated code.
+clean-generated: clean-generated-goa clean-generated-mocks
+
+CLEAN_TARGETS += clean-generated-goa
+.PHONY: clean-generated-goa
+# Removes all generated goa code.
 clean-generated-goa:
 	-rm -rf ./app
 	-rm -rf ./swagger/
@@ -257,7 +298,8 @@ clean: $(CLEAN_TARGETS)
 # run in dev mode
 # -------------------------------------------------------------------
 .PHONY: dev
-dev: prebuild-check deps generate $(FRESH_BIN) ## run the server locally
+## run the server locally
+dev: prebuild-check deps generate $(FRESH_BIN) 
 	ADMIN_DEVELOPER_MODE_ENABLED=true $(FRESH_BIN)
 
 # -------------------------------------------------------------------
@@ -305,14 +347,14 @@ $(SERVER_BIN): prebuild-check deps generate
 # Generate code
 # -------------------------------------------------------------------
 .PHONY: generate
-## Generate GOA sources. Only necessary after clean of if changed `design` folder.
+## Generate GOA and mock sources. Only necessary after clean of if changed `design` folder.
 generate: generate-goa generate-mocks
 
 # -------------------------------------------------------------------
 # Generate GOA code
 # -------------------------------------------------------------------
 .PHONY: generate-goa
-## Generate GOA sources. Only necessary after clean of if changed `design` folder.
+# Generate GOA sources. Only necessary after clean of if changed `design` folder.
 generate-goa: prebuild-check $(DESIGNS) $(GOAGEN_BIN) $(VENDOR_DIR)
 	$(GOAGEN_BIN) app -d ${PACKAGE_NAME}/${DESIGN_DIR}
 	$(GOAGEN_BIN) controller -d ${PACKAGE_NAME}/${DESIGN_DIR} -o controller/ --pkg controller --app-pkg ${PACKAGE_NAME}/app
