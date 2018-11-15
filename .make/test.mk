@@ -132,7 +132,8 @@ test-all: prebuild-check test-unit test-integration
 test-unit-with-coverage: prebuild-check clean-coverage-unit generate $(COV_PATH_UNIT)  
 
 .PHONY: test-unit
-test-unit: prebuild-check generate $(SOURCES) ## Runs the unit tests and WITHOUT producing coverage files for each package.
+## Runs the unit tests and WITHOUT producing coverage files for each package.
+test-unit: prebuild-check generate $(SOURCES) 
 	$(call log-info,"Running test: $@")
 	$(eval TEST_PACKAGES:=$(shell go list ./... | grep -v $(ALL_PKGS_EXCLUDE_PATTERN)))
 	ADMIN_DEVELOPER_MODE_ENABLED=1 ADMIN_RESOURCE_UNIT_TEST=1 ADMIN_LOG_LEVEL=$(ADMIN_LOG_LEVEL) go test -vet off $(GO_TEST_VERBOSITY_FLAG) $(TEST_PACKAGES)
@@ -282,8 +283,8 @@ coverage-integration: prebuild-check $(COV_PATH_INTEGRATION)
 	$(call package-coverage,integration)
 
 .PHONY: coverage-all
-## Output coverage profile information for each function.
-## Re-runs unit- and integration-tests if coverage information is outdated.
+# Output coverage profile information for each function.
+# Re-runs unit- and integration-tests if coverage information is outdated.
 coverage-all: prebuild-check clean-coverage-overall $(COV_PATH_OVERALL)
 	$(call cleanup-coverage-file,$(COV_PATH_OVERALL))
 	@go tool cover -func=$(COV_PATH_OVERALL)
@@ -306,8 +307,8 @@ coverage-integration-html: prebuild-check $(COV_PATH_INTEGRATION)
 	@go tool cover -html=$(COV_PATH_INTEGRATION)
 
 .PHONY: coverage-all-html
-## Output coverage profile information for each function.
-## Re-runs unit- and integration-tests if coverage information is outdated.
+# Output coverage profile information for each function.
+# Re-runs unit- and integration-tests if coverage information is outdated.
 coverage-all-html: prebuild-check clean-coverage-overall $(COV_PATH_OVERALL)
 	$(call cleanup-coverage-file,$(COV_PATH_OVERALL))
 	@go tool cover -html=$(COV_PATH_OVERALL)
@@ -457,14 +458,14 @@ $(GOCOVMERGE_BIN): prebuild-check
 
 CLEAN_TARGETS += clean-generated-mocks
 .PHONY: clean-generated-mocks
-## Removes all coverage files
+# Removes all coverage files
 clean-generated-mocks: 
 	-rm -rf ./test/generated
 
 
 CLEAN_TARGETS += clean-coverage
 .PHONY: clean-coverage
-## Removes all coverage files
+# Removes all coverage files
 clean-coverage: clean-coverage-unit clean-coverage-integration clean-coverage-overall
 	-@rm -rf $(COV_DIR)
 
