@@ -5,6 +5,7 @@ run:
     - design
     - app
     - app/test
+    - vendor
 
 # all available settings of specific linters
 linters-settings:

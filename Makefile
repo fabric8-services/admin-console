@@ -139,17 +139,15 @@ endif
 # -------------------------------------------------------------------
 # deps
 # -------------------------------------------------------------------
-$(TMP_BIN_DIR):
-	@echo "making $(TMP_BIN_DIR)"
-	@mkdir -p $(TMP_BIN_DIR)
 
 .PHONY: deps 
 ## Download build dependencies.
 deps: $(DEP_BIN) $(VENDOR_DIR) 
 	
 # install dep in a the tmp/bin dir of the repo
-$(DEP_BIN): $(TMP_BIN_DIR) 
+$(DEP_BIN): 
 	@echo "Installing 'dep' $(DEP_VERSION) at '$(TMP_BIN_DIR)'..."
+	mkdir -p $(TMP_BIN_DIR)
 ifeq ($(UNAME_S),Darwin)
 	@curl -L -s https://github.com/golang/dep/releases/download/$(DEP_VERSION)/dep-darwin-amd64 -o $(DEP_BIN) 
 	@cd $(TMP_BIN_DIR) && \
@@ -206,10 +204,9 @@ check-go-code: $(GOLANGCI_LINT_BIN) generate
 	$(GOLANGCI_LINT_BIN) run
 
 # install golangci-lint in the 'tmp/bin' dir of the repo
-$(GOLANGCI_LINT_BIN): $(TMP_BIN_DIR) 
-	@echo "Unable to locate $(GOLANGCI_LINT_BIN)"
-	@ls -al $(GOLANGCI_LINT_BIN)
+$(GOLANGCI_LINT_BIN): 
 	@echo "Installing 'golang-ci-lint' $(GOLANGCI_LINT_VERSION) at '$(TMP_BIN_DIR)' ..."
+	mkdir -p $(TMP_BIN_DIR)
 ifeq ($(UNAME_S),Darwin)
 	@curl -L -s https://github.com/golangci/golangci-lint/releases/download/v$(GOLANGCI_LINT_VERSION)/golangci-lint-$(GOLANGCI_LINT_VERSION)-darwin-amd64.tar.gz -o $(GOLANGCI_LINT_BIN)-$(GOLANGCI_LINT_VERSION)-darwin-amd64.tar.gz && \
 	cd $(TMP_BIN_DIR) && curl -L -s https://github.com/golangci/golangci-lint/releases/download/v$(GOLANGCI_LINT_VERSION)/golangci-lint-$(GOLANGCI_LINT_VERSION)-checksums.txt -o  golangci-lint-$(GOLANGCI_LINT_VERSION)-checksums.txt && \
