@@ -146,7 +146,7 @@ $(TMP_BIN_DIR):
 .PHONY: deps 
 ## Download build dependencies.
 deps: $(DEP_BIN) $(VENDOR_DIR) 
-	@dep ensure -v
+	
 # install dep in a the tmp/bin dir of the repo
 $(DEP_BIN): $(TMP_BIN_DIR) 
 	@echo "Installing 'dep' $(DEP_VERSION) at '$(TMP_BIN_DIR)'..."
