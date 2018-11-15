@@ -21,8 +21,7 @@ import (
 
 func TestStatusController(t *testing.T) {
 	resource.Require(t, resource.Database)
-	config, err := configuration.New()
-	require.NoError(t, err)
+	config := configuration.New()
 	suite.Run(t, &StatusControllerBlackboxTestSuite{DBTestSuite: testsuite.NewDBTestSuite(config)})
 }
 

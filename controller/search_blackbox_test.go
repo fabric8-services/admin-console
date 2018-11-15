@@ -47,8 +47,7 @@ func (s *SearchControllerBlackboxTestSuite) SetupSuite() {
 
 func TestSearchController(t *testing.T) {
 	resource.Require(t, resource.Database)
-	config, err := configuration.New()
-	require.NoError(t, err)
+	config := configuration.New()
 	suite.Run(t, &SearchControllerBlackboxTestSuite{DBTestSuite: testsuite.NewDBTestSuite(config)})
 }
 

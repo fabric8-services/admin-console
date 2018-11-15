@@ -2,7 +2,6 @@ package migration
 
 import (
 	"database/sql"
-	"fmt"
 	"sync"
 	"testing"
 
@@ -16,10 +15,7 @@ import (
 func TestConcurrentMigrations(t *testing.T) {
 	resource.Require(t, resource.Database)
 
-	config, err := configuration.New()
-	if err != nil {
-		panic(fmt.Errorf("Failed to setup the configuration: %s", err.Error()))
-	}
+	config := configuration.New()
 
 	var wg sync.WaitGroup
 
