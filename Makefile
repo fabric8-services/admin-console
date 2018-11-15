@@ -223,7 +223,6 @@ else
 	mv $(TMP_BIN_DIR)/golangci-lint-$(GOLANGCI_LINT_VERSION)-linux-amd64/golangci-lint $(GOLANGCI_LINT_BIN)
 endif
 	@chmod +x $(GOLANGCI_LINT_BIN)
-	@ls -al $(GOLANGCI_LINT_BIN)
 
 # -------------------------------------------------------------------
 # support for running in dev mode
