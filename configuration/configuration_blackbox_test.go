@@ -79,7 +79,7 @@ func TestConfiguration(t *testing.T) {
 		t.Run("error when using empty Sentry DSN only", func(t *testing.T) {
 			// given
 			unsetenvs := setenvs(envvars{
-				"ADMIN_AUTH_URL":               "localhost",
+				"ADMIN_AUTH_URL":               "http://auth",
 				"ADMIN_POSTGRES_PASSWORD":      "anothersecretpassword",
 				"ADMIN_DEVELOPER_MODE_ENABLED": "false",
 			})
@@ -95,7 +95,7 @@ func TestConfiguration(t *testing.T) {
 		t.Run("no error when all envs set", func(t *testing.T) {
 			// given
 			unsetenvs := setenvs(envvars{
-				"ADMIN_AUTH_URL":               "localhost",
+				"ADMIN_AUTH_URL":               "http://auth",
 				"ADMIN_SENTRY_DSN":             "sentry",
 				"ADMIN_POSTGRES_PASSWORD":      "anothersecretpassword",
 				"ADMIN_DEVELOPER_MODE_ENABLED": "false",

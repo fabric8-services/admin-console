@@ -5,5 +5,7 @@ const (
 
 	defaultDBPassword = "mysecretpassword"
 
+	defaultAuthURL = "http://auth"
+
 	defaultLogLevel = "info"
 )
