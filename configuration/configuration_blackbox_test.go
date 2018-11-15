@@ -135,7 +135,7 @@ func setenvs(envs envvars) func() {
 		os.Setenv(k, v)
 	}
 	return func() {
-		for k, _ := range envs {
+		for k := range envs {
 			os.Unsetenv(k)
 		}
 	}
