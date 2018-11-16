@@ -42,7 +42,7 @@ func (s *StatusControllerBlackboxTestSuite) TestShowStatus() {
 	svc, ctrl := newStatusController(dbChecker, config)
 	ctx := context.Background()
 
-	s.T().Run("with DB available", func(t *testing.T) {
+	s.T().Run("service available", func(t *testing.T) {
 
 		dbChecker.PingFunc = func() error {
 			return nil
@@ -82,20 +82,36 @@ func (s *StatusControllerBlackboxTestSuite) TestShowStatus() {
 		})
 	})
 
-	s.T().Run("with DB not available", func(t *testing.T) {
+	s.T().Run("service not available", func(t *testing.T) {
 
-		// given
-		dbChecker.PingFunc = func() error {
-			return errors.New("db unavailable")
-		}
-		config.IsDeveloperModeEnabledFunc = func() bool {
-			return true
-		}
-		config.DefaultConfigurationErrorFunc = func() error {
-			return nil
-		}
-		// when/then
-		apptest.ShowStatusServiceUnavailable(t, ctx, svc, ctrl)
+		t.Run("with DB not available", func(t *testing.T) {
+
+			// given
+			dbChecker.PingFunc = func() error {
+				return errors.New("db unavailable")
+			}
+			config.IsDeveloperModeEnabledFunc = func() bool {
+				return true
+			}
+			config.DefaultConfigurationErrorFunc = func() error {
+				return nil
+			}
+			// when/then
+			apptest.ShowStatusServiceUnavailable(t, ctx, svc, ctrl)
+		})
+
+		t.Run("with config error in non-devmode", func(t *testing.T) {
+
+			// given
+			config.IsDeveloperModeEnabledFunc = func() bool {
+				return true
+			}
+			config.DefaultConfigurationErrorFunc = func() error {
+				return errors.New("config error")
+			}
+			// when/then
+			apptest.ShowStatusServiceUnavailable(t, ctx, svc, ctrl)
+		})
 	})
 
 }
