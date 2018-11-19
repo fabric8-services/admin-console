@@ -440,6 +440,9 @@ generate-mocks: deps $(MINIMOCK_BIN)
 	@echo "Generating mocks..."
 	-mkdir -p test/generated/configuration
 	$(MINIMOCK_BIN) -i vendor/github.com/fabric8-services/fabric8-common/token.ManagerConfiguration -o ./test/generated/configuration/manager_configuration_mock.go -t ManagerConfigurationMock
+	-mkdir -p test/generated/controller
+	$(MINIMOCK_BIN) -i controller.DBChecker -o ./test/generated/controller/dbchecker_mock.go -t DBCheckerMock
+	$(MINIMOCK_BIN) -i controller.StatusControllerConfiguration -o ./test/generated/controller/status_controller_configuration_mock.go -t StatusControllerConfigurationMock
 	
 
 #-------------------------------------------------------------------------------

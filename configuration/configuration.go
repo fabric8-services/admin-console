@@ -3,7 +3,6 @@ package configuration
 import (
 	"fmt"
 	"net/url"
-	"os"
 	"strings"
 	"sync"
 	"time"
@@ -75,7 +74,7 @@ type Configuration struct {
 }
 
 // New creates a configuration reader object using configurable configuration file paths
-func New() (*Configuration, error) {
+func New() *Configuration {
 	c := &Configuration{
 		v: viper.New(),
 	}
@@ -88,29 +87,41 @@ func New() (*Configuration, error) {
 	c.setConfigDefaults()
 
 	// Check sensitive default configuration
-	if c.IsDeveloperModeEnabled() {
-		c.appendDefaultConfigErrorMessage("developer Mode is enabled")
-	}
-	c.validateURL(c.GetAuthServiceURL(), "Auth service")
-	if c.GetAuthServiceURL() == "http://localhost" {
-		c.appendDefaultConfigErrorMessage("environment is expected to be set to 'production' or 'prod-preview'")
+	hostname := c.validateURL(c.GetAuthServiceURL(), "Auth service")
+	if hostname == "localhost" {
+		c.appendDefaultConfigErrorMessage("Auth service url is localhost")
 	}
 	if c.GetSentryDSN() == "" {
 		c.appendDefaultConfigErrorMessage("Sentry DSN is empty")
 	}
+	if c.GetPostgresPassword() == defaultDBPassword {
+		c.appendDefaultConfigErrorMessage("default DB password is used")
+	}
+	if c.IsDeveloperModeEnabled() {
+		c.appendDefaultConfigErrorMessage("developer mode is enabled")
+	}
 
-	return c, nil
+	return c
 }
 
-func (c *Configuration) validateURL(serviceURL, serviceName string) {
+// returns the hostname of the given URL if this latter was not empty
+func (c *Configuration) validateURL(serviceURL, serviceName string) string {
 	if serviceURL == "" {
 		c.appendDefaultConfigErrorMessage(fmt.Sprintf("%s url is empty", serviceName))
-	} else {
-		_, err := url.Parse(serviceURL)
-		if err != nil {
-			c.appendDefaultConfigErrorMessage(fmt.Sprintf("invalid %s url: %s", serviceName, err.Error()))
-		}
+		return ""
 	}
+
+	u, err := url.Parse(serviceURL)
+	if err != nil {
+		c.appendDefaultConfigErrorMessage(fmt.Sprintf("invalid %s url: %s", serviceName, err.Error()))
+		return ""
+	}
+	if u.Hostname() == "" { // probably missing the http/https scheme
+		c.appendDefaultConfigErrorMessage(fmt.Sprintf("invalid %s url (missing scheme?)", serviceName))
+		return ""
+	}
+	return u.Hostname()
+
 }
 
 func (c *Configuration) appendDefaultConfigErrorMessage(message string) {
@@ -119,12 +130,6 @@ func (c *Configuration) appendDefaultConfigErrorMessage(message string) {
 	} else {
 		c.defaultConfigurationError = errors.Errorf("%s; %s", c.defaultConfigurationError.Error(), message)
 	}
-}
-
-func getMainConfigFile() string {
-	// This was either passed as a env var or set inside main.go from --config
-	envConfigPath, _ := os.LookupEnv("ADMIN_CONFIG_FILE_PATH")
-	return envConfigPath
 }
 
 // DefaultConfigurationError returns an error if the default values is used

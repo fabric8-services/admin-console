@@ -23,8 +23,7 @@ type TransactionTestSuite struct {
 
 func TestRunTransaction(t *testing.T) {
 	resource.Require(t, resource.Database)
-	config, err := configuration.New()
-	require.NoError(t, err)
+	config := configuration.New()
 	suite.Run(t, &TransactionTestSuite{DBTestSuite: testsuite.NewDBTestSuite(config)})
 }
 

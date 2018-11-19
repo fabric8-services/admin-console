@@ -48,18 +48,13 @@ func main() {
 	flag.BoolVar(&migrateDB, "migrateDatabase", false, "Migrates the database to the newest version and exits.")
 	flag.Parse()
 
-	config, err := configuration.New()
-	if err != nil {
-		log.Panic(context.TODO(), map[string]interface{}{
-			"config_file_path": configFilePath,
-			"err":              err,
-		}, "failed to setup the configuration")
-	}
+	config := configuration.New()
 
 	// Initialized developer mode flag and log level for the logger
 	log.InitializeLogger(config.IsLogJSON(), config.GetLogLevel())
 
 	var db *gorm.DB
+	var err error
 	for {
 		db, err = gorm.Open("postgres", config.GetPostgresConfigString())
 		if err != nil {
@@ -129,7 +124,8 @@ func main() {
 	app.UseJWTMiddleware(service, jwt.New(tokenManager.PublicKeys(), nil, app.NewJWTSecurity()))
 
 	// Mount the '/status' controller
-	statusCtrl := controller.NewStatusController(service)
+	dbChecker := controller.NewGormDBChecker(db)
+	statusCtrl := controller.NewStatusController(service, dbChecker, config)
 	app.MountStatusController(service, statusCtrl)
 
 	// Mount the '/search' controller
