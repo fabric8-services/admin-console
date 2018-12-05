@@ -6,10 +6,10 @@ ARG USE_GO_VERSION_FROM_WEBSITE=0
 
 # Some packages might seem weird but they are required by the RVM installer.
 RUN yum install epel-release --enablerepo=extras -y \
-    && yum --enablerepo=centosplus --enablerepo=epel-testing install -y --quiet \
+    && yum --enablerepo=centosplus --enablerepo=epel-testing install -y \
       findutils \
       git \
-      $(test -z $USE_GO_VERSION_FROM_WEBSITE && echo "golang") \
+      $(test "$USE_GO_VERSION_FROM_WEBSITE" != 1 && echo "golang") \
       make \
       procps-ng \
       tar \
@@ -17,14 +17,14 @@ RUN yum install epel-release --enablerepo=extras -y \
       which \
     && yum clean all
 
-RUN test -n $USE_GO_VERSION_FROM_WEBSITE \
-    && cd /tmp \
+RUN if [[ "$USE_GO_VERSION_FROM_WEBSITE" = 1 ]]; then cd /tmp \
     && wget https://dl.google.com/go/go1.10.linux-amd64.tar.gz \
     && echo "b5a64335f1490277b585832d1f6c7f8c6c11206cba5cd3f771dcb87b98ad1a33  go1.10.linux-amd64.tar.gz" > checksum \
     && sha256sum -c checksum \
     && tar -C /usr/local -xzf go1.10.linux-amd64.tar.gz \
     && rm -f go1.10.linux-amd64.tar.gz \
-    && /usr/local/go/bin/go version
+    && /usr/local/go/bin/go version; \
+    fi
 ENV PATH=$PATH:/usr/local/go/bin
 
 # Get dep for Go package management and make sure the directory has full rwz permissions for non-root users
