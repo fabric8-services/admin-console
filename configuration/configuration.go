@@ -12,7 +12,7 @@ import (
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
-	"gopkg.in/yaml.v2"
+	yaml "gopkg.in/yaml.v2"
 )
 
 // String returns the current configuration as a string
@@ -92,7 +92,8 @@ func New() *Configuration {
 		c.appendDefaultConfigErrorMessage("Auth service url is localhost")
 	}
 	if c.GetSentryDSN() == "" {
-		c.appendDefaultConfigErrorMessage("Sentry DSN is empty")
+		// c.appendDefaultConfigErrorMessage("Sentry DSN is empty")
+		log.Error("missing 'sentry_dsn' environment variable")
 	}
 	if c.GetPostgresPassword() == defaultDBPassword {
 		c.appendDefaultConfigErrorMessage("default DB password is used")
