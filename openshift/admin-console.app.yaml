@@ -74,6 +74,11 @@ objects:
               configMapKeyRef:
                 name: admin-console
                 key: auth.url
+          - name: ADMIN_SENTRY_DSN
+            valueFrom:
+              secretKeyRef:
+                name: admin-console
+                key: sentry.dsn
           imagePullPolicy: Always
           name: admin-console
           ports:
