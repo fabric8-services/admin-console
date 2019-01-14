@@ -73,3 +73,7 @@ ignored = [
 [[constraint]]
   name = "github.com/gojuno/minimock"
   revision = "a5502dd2746ee6fc3fd58ad83d701d25e14d68d1"
+
+[[constraint]]
+  name = "gopkg.in/h2non/gock.v1"
+  version = "1.0.12"

@@ -66,16 +66,6 @@
   version = "v5.0.1"
 
 [[projects]]
-  digest = "1:cd503d36a578b331bf585e3bb97dac8333188a74f773406ebb48c7bff9b270ed"
-  name = "github.com/dnaeon/go-vcr"
-  packages = [
-    "cassette",
-    "recorder",
-  ]
-  pruneopts = "UT"
-  revision = "5637cf3d8a31b20882d79bd0e53a186d3821b155"
-
-[[projects]]
   branch = "master"
   digest = "1:67c8b413e64e3ae84fa491b73839b3928bda168777382c7adee86665e20547e0"
   name = "github.com/fabric8-services/fabric8-auth-client"
@@ -84,7 +74,7 @@
   revision = "0eb93fc6cee1e202cb0f3ade92e99a2423b49283"
 
 [[projects]]
-  digest = "1:46901a3da58836f5c369ec42799ecab029bbf0b5cf21e5fb753e7a6029febab9"
+  digest = "1:e407a94c04f61fffcfe436e0d2b3eea1add846c511bb83607ed7c371cf377b33"
   name = "github.com/fabric8-services/fabric8-common"
   packages = [
     "closeable",
@@ -103,7 +93,6 @@
     "resource",
     "sentry",
     "test/auth",
-    "test/recorder",
     "test/suite",
     "token",
     "token/jwk",
@@ -612,6 +601,14 @@
   revision = "90fa682c2a6e6a37b3a1364ce2fe1d5e41af9d6d"
 
 [[projects]]
+  digest = "1:f1e9221c1e17a438f8758d8da7be7ced1fc6132c4555d589d80f697d2cba7c8a"
+  name = "gopkg.in/h2non/gock.v1"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "a6029d17e101ac1594adafea9e63fd8c988a8701"
+  version = "v1.0.12"
+
+[[projects]]
   digest = "1:26a278a34e30cc8fbd09d5f7474488ac4cbad325c2b592b30e76e5d7d2fc1f10"
   name = "gopkg.in/square/go-jose.v2"
   packages = [
@@ -651,7 +648,6 @@
     "github.com/fabric8-services/fabric8-common/resource",
     "github.com/fabric8-services/fabric8-common/sentry",
     "github.com/fabric8-services/fabric8-common/test/auth",
-    "github.com/fabric8-services/fabric8-common/test/recorder",
     "github.com/fabric8-services/fabric8-common/test/suite",
     "github.com/fabric8-services/fabric8-common/token",
     "github.com/fzipp/gocyclo",
@@ -673,6 +669,7 @@
     "github.com/goadesign/goa/middleware",
     "github.com/goadesign/goa/middleware/gzip",
     "github.com/goadesign/goa/middleware/security/jwt",
+    "github.com/gojuno/minimock",
     "github.com/gojuno/minimock/cmd/minimock",
     "github.com/golang/lint/golint",
     "github.com/google/gops/agent",
@@ -690,6 +687,7 @@
     "github.com/stretchr/testify/require",
     "github.com/stretchr/testify/suite",
     "github.com/wadey/gocovmerge",
+    "gopkg.in/h2non/gock.v1",
     "gopkg.in/yaml.v2",
   ]
   solver-name = "gps-cdcl"

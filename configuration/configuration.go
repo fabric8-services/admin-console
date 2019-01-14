@@ -12,7 +12,7 @@ import (
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
-	"gopkg.in/yaml.v2"
+	yaml "gopkg.in/yaml.v2"
 )
 
 // String returns the current configuration as a string
@@ -62,7 +62,8 @@ const (
 	varSentryDSN   = "sentry.dsn"
 
 	// other services
-	varAuthURL = "auth.url"
+	varAuthURL   = "auth.url"
+	varTenantURL = "tenant.url"
 )
 
 // Configuration encapsulates the Viper configuration object which stores the configuration data in-memory.
@@ -149,6 +150,11 @@ func (c *Configuration) GetAuthServiceURL() string {
 	return c.v.GetString(varAuthURL)
 }
 
+// GetTenantServiceURL returns Tenant Service URL
+func (c *Configuration) GetTenantServiceURL() string {
+	return c.v.GetString(varTenantURL)
+}
+
 func (c *Configuration) setConfigDefaults() {
 	//---------
 	// Postgres
@@ -158,7 +164,7 @@ func (c *Configuration) setConfigDefaults() {
 	c.v.SetTypeByDefaultValue(true)
 
 	c.v.SetDefault(varPostgresHost, "localhost")
-	c.v.SetDefault(varPostgresPort, 5434)
+	c.v.SetDefault(varPostgresPort, 5435)
 	c.v.SetDefault(varPostgresUser, "postgres")
 	c.v.SetDefault(varPostgresDatabase, "postgres")
 	c.v.SetDefault(varPostgresPassword, defaultDBPassword)
