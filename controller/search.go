@@ -41,8 +41,8 @@ func (c *SearchController) SearchUsers(ctx *app.SearchUsersSearchContext) error 
 	if err != nil {
 		log.Error(ctx, map[string]interface{}{
 			"err": err,
-		}, "unable to proxy to auth service")
-		return app.JSONErrorResponse(ctx, errors.NewUnauthorizedError("invalid authorization token (invalid 'sub' claim)"))
+		}, "missing or invalid authorization token")
+		return app.JSONErrorResponse(ctx, errors.NewUnauthorizedError("missing or invalid authorization token"))
 	}
 	record := auditlog.AuditLog{
 		EventTypeID: auditlog.UserSearch,
@@ -55,6 +55,9 @@ func (c *SearchController) SearchUsers(ctx *app.SearchUsersSearchContext) error 
 		return appl.AuditLogs().Create(ctx, &record)
 	})
 	if err != nil {
+		log.Error(ctx, map[string]interface{}{
+			"err": err,
+		}, "unable to record the auditlog while proxying request to auth")
 		return app.JSONErrorResponse(ctx, err)
 	}
 

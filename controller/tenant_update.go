@@ -38,8 +38,8 @@ func (c *TenantUpdateController) Show(ctx *app.ShowTenantUpdateContext) error {
 	if err != nil {
 		log.Error(ctx, map[string]interface{}{
 			"err": err,
-		}, "unable to proxy to tenant service")
-		return app.JSONErrorResponse(ctx, errors.NewUnauthorizedError("invalid authorization token (invalid 'sub' claim)"))
+		}, "invalid or missing authorization token")
+		return app.JSONErrorResponse(ctx, errors.NewUnauthorizedError("invalid or missing authorization token"))
 	}
 	err = application.Transactional(c.db, func(appl application.Application) error {
 		return appl.AuditLogs().Create(ctx, &auditlog.AuditLog{
@@ -51,7 +51,7 @@ func (c *TenantUpdateController) Show(ctx *app.ShowTenantUpdateContext) error {
 	if err != nil {
 		log.Error(ctx, map[string]interface{}{
 			"err": err,
-		}, "unable to proxy to tenant service")
+		}, "unable to record the auditlog while proxying request to tenant")
 		return app.JSONErrorResponse(ctx, err)
 	}
 	return httpsupport.RouteHTTPToPath(ctx, c.config.GetTenantServiceURL(), "/api/update")
@@ -63,8 +63,8 @@ func (c *TenantUpdateController) Start(ctx *app.StartTenantUpdateContext) error 
 	if err != nil {
 		log.Error(ctx, map[string]interface{}{
 			"err": err,
-		}, "unable to proxy to tenant service")
-		return app.JSONErrorResponse(ctx, errors.NewUnauthorizedError("invalid authorization token (invalid 'sub' claim)"))
+		}, "invalid or missing authorization token")
+		return app.JSONErrorResponse(ctx, errors.NewUnauthorizedError("invalid or missing authorization token"))
 	}
 	err = application.Transactional(c.db, func(appl application.Application) error {
 		eventParams := auditlog.EventParams{}
@@ -83,7 +83,7 @@ func (c *TenantUpdateController) Start(ctx *app.StartTenantUpdateContext) error 
 	if err != nil {
 		log.Error(ctx, map[string]interface{}{
 			"err": err,
-		}, "unable to proxy to tenant service")
+		}, "unable to record the auditlog while proxying request to tenant")
 		return app.JSONErrorResponse(ctx, err)
 	}
 	return httpsupport.RouteHTTPToPath(ctx, c.config.GetTenantServiceURL(), "/api/update")
@@ -95,8 +95,8 @@ func (c *TenantUpdateController) Stop(ctx *app.StopTenantUpdateContext) error {
 	if err != nil {
 		log.Error(ctx, map[string]interface{}{
 			"err": err,
-		}, "unable to proxy to tenant service")
-		return app.JSONErrorResponse(ctx, errors.NewUnauthorizedError("invalid authorization token (invalid 'sub' claim)"))
+		}, "invalid or missing authorization token")
+		return app.JSONErrorResponse(ctx, errors.NewUnauthorizedError("invalid or missing authorization token"))
 	}
 	err = application.Transactional(c.db, func(appl application.Application) error {
 		return appl.AuditLogs().Create(ctx, &auditlog.AuditLog{
@@ -108,7 +108,7 @@ func (c *TenantUpdateController) Stop(ctx *app.StopTenantUpdateContext) error {
 	if err != nil {
 		log.Error(ctx, map[string]interface{}{
 			"err": err,
-		}, "unable to proxy to tenant service")
+		}, "unable to record the auditlog while proxying request to tenant")
 		return app.JSONErrorResponse(ctx, err)
 	}
 	return httpsupport.RouteHTTPToPath(ctx, c.config.GetTenantServiceURL(), "/api/update")
