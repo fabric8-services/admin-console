@@ -54,7 +54,7 @@ func (c *TenantUpdateController) Show(ctx *app.ShowTenantUpdateContext) error {
 		}, "unable to proxy to tenant service")
 		return app.JSONErrorResponse(ctx, err)
 	}
-	return httpsupport.RouteHTTP(ctx, c.config.GetTenantServiceURL())
+	return httpsupport.RouteHTTPToPath(ctx, c.config.GetTenantServiceURL(), "/api/update")
 }
 
 // Start starts a tenant update
@@ -86,7 +86,7 @@ func (c *TenantUpdateController) Start(ctx *app.StartTenantUpdateContext) error 
 		}, "unable to proxy to tenant service")
 		return app.JSONErrorResponse(ctx, err)
 	}
-	return httpsupport.RouteHTTP(ctx, c.config.GetTenantServiceURL())
+	return httpsupport.RouteHTTPToPath(ctx, c.config.GetTenantServiceURL(), "/api/update")
 }
 
 // Stop stops the ongoing tenant update
@@ -111,5 +111,5 @@ func (c *TenantUpdateController) Stop(ctx *app.StopTenantUpdateContext) error {
 		}, "unable to proxy to tenant service")
 		return app.JSONErrorResponse(ctx, err)
 	}
-	return httpsupport.RouteHTTP(ctx, c.config.GetTenantServiceURL())
+	return httpsupport.RouteHTTPToPath(ctx, c.config.GetTenantServiceURL(), "/api/update")
 }

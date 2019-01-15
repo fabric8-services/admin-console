@@ -164,9 +164,9 @@ func (s *TenantUpdateControllerBlackboxTestSuite) TestStartTenantUpdate() {
 			envType := "stage"
 			gock.New("http://test-tenant").
 				Post("/api/update").
-				MatchParam("cluster_uRL", cluster).
-				MatchParam("env_type", envType).
 				MatchHeader("Authorization", authzHeader).
+				MatchParam("cluster_url", cluster).
+				MatchParam("env_type", envType).
 				Reply(http.StatusAccepted).BodyString(`{"data":"whatever"}`)
 			// when
 			apptest.StartTenantUpdateAccepted(t, ctx, svc, ctrl, &cluster, &envType, &authzHeader)
