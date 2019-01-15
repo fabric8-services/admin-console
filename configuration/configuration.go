@@ -33,14 +33,15 @@ const (
 	// default values as well as to get each value
 
 	// General
-	varHTTPAddress          = "http.address"
-	varHeaderMaxLength      = "header.maxlength"
-	varMetricsHTTPAddress   = "metrics.http.address"
-	varDeveloperModeEnabled = "developer.mode.enabled"
-	varCleanTestDataEnabled = "clean.test.data"
-	varDBLogsEnabled        = "enable.db.logs"
-	varLogLevel             = "log.level"
-	varLogJSON              = "log.json"
+	varHTTPAddress                        = "http.address"
+	varHeaderMaxLength                    = "header.maxlength"
+	varMetricsHTTPAddress                 = "metrics.http.address"
+	varDeveloperModeEnabled               = "developer.mode.enabled"
+	varCleanTestDataEnabled               = "clean.test.data"
+	varCleanTestDataErrorReportingEnabled = "clean.test.data.error.reporting"
+	varDBLogsEnabled                      = "enable.db.logs"
+	varLogLevel                           = "log.level"
+	varLogJSON                            = "log.json"
 
 	// Postgres
 	varPostgresHost                 = "postgres.host"
@@ -206,11 +207,6 @@ func (c *Configuration) setConfigDefaults() {
 
 	c.v.SetDefault(varLogLevel, defaultLogLevel)
 
-	// By default, test data should be cleaned from DB, unless explicitely said otherwise.
-	c.v.SetDefault(varCleanTestDataEnabled, true)
-	// By default, DB logs are not output in the console
-	c.v.SetDefault(varDBLogsEnabled, false)
-
 }
 
 // GetPostgresHost returns the postgres host as set via default, config file, or environment variable
@@ -311,6 +307,11 @@ func (c *Configuration) IsDeveloperModeEnabled() bool {
 // IsCleanTestDataEnabled returns `true` if the test data should be cleaned after each test. (default: true)
 func (c *Configuration) IsCleanTestDataEnabled() bool {
 	return c.v.GetBool(varCleanTestDataEnabled)
+}
+
+// IsCleanTestDataErrorReportingRequired returns `true` if the test data should be cleaned after each test. (default: true)
+func (c *Configuration) IsCleanTestDataErrorReportingRequired() bool {
+	return c.v.GetBool(varCleanTestDataErrorReportingEnabled)
 }
 
 // IsDBLogsEnabled returns `true` if the DB logs (ie, SQL queries) should be output in the console. (default: false)

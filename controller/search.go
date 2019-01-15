@@ -4,9 +4,10 @@ import (
 	"github.com/fabric8-services/admin-console/app"
 	"github.com/fabric8-services/admin-console/application"
 	"github.com/fabric8-services/admin-console/auditlog"
+	authsupport "github.com/fabric8-services/fabric8-common/auth"
 	"github.com/fabric8-services/fabric8-common/errors"
 	"github.com/fabric8-services/fabric8-common/httpsupport"
-	"github.com/fabric8-services/fabric8-common/token"
+	"github.com/fabric8-services/fabric8-common/log"
 
 	"github.com/goadesign/goa"
 )
@@ -36,12 +37,11 @@ func NewSearchController(service *goa.Service, config SearchControllerConfigurat
 
 // SearchUsers runs the search_users action.
 func (c *SearchController) SearchUsers(ctx *app.SearchUsersSearchContext) error {
-	tokenManager, err := token.ReadManagerFromContext(ctx)
+	identityID, err := authsupport.LocateIdentity(ctx)
 	if err != nil {
-		return app.JSONErrorResponse(ctx, errors.NewUnauthorizedError("missing token manager in the request context"))
-	}
-	identityID, err := tokenManager.Locate(ctx)
-	if err != nil {
+		log.Error(ctx, map[string]interface{}{
+			"err": err,
+		}, "unable to proxy to auth service")
 		return app.JSONErrorResponse(ctx, errors.NewUnauthorizedError("invalid authorization token (invalid 'sub' claim)"))
 	}
 	record := auditlog.AuditLog{

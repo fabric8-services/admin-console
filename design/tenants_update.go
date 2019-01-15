@@ -17,7 +17,7 @@ var _ = a.Resource("tenants_update", func() {
 			a.Header("Authorization", d.String, "the authorization header")
 		})
 		a.Description("Get information about last/ongoing update.")
-		a.Response(d.OK) // here we don't specify a media type, because we're just proxying to `auth`
+		a.Response(d.OK) // here we don't specify a media type, because we're just proxying to `tenant`
 		a.Response(d.Unauthorized, JSONAPIErrors)
 		a.Response(d.InternalServerError, JSONAPIErrors)
 	})
@@ -39,7 +39,7 @@ var _ = a.Resource("tenants_update", func() {
 
 		a.Description("Start new cluster-wide update.")
 		a.Response(d.Accepted)
-		a.Response(d.Conflict) // here we don't specify a media type, because we're just proxying to `auth`
+		a.Response(d.Conflict) // here we don't specify a media type, because we're just proxying to `tenant`
 		a.Response(d.BadRequest, JSONAPIErrors)
 		a.Response(d.InternalServerError, JSONAPIErrors)
 		a.Response(d.Unauthorized, JSONAPIErrors)

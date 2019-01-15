@@ -14,12 +14,12 @@ import (
 	"github.com/fabric8-services/admin-console/configuration"
 	"github.com/fabric8-services/admin-console/controller"
 	"github.com/fabric8-services/admin-console/migration"
+	authsupport "github.com/fabric8-services/fabric8-common/auth"
 	"github.com/fabric8-services/fabric8-common/closeable"
 	"github.com/fabric8-services/fabric8-common/goamiddleware"
 	"github.com/fabric8-services/fabric8-common/log"
 	"github.com/fabric8-services/fabric8-common/metric"
 	"github.com/fabric8-services/fabric8-common/sentry"
-	"github.com/fabric8-services/fabric8-common/token"
 
 	"github.com/goadesign/goa"
 	goalogrus "github.com/goadesign/goa/logging/logrus"
@@ -109,7 +109,7 @@ func main() {
 	service.WithLogger(goalogrus.New(log.Logger()))
 
 	appDB := application.NewGormApplication(db)
-	tokenManager, err := token.DefaultManager(config)
+	tokenManager, err := authsupport.DefaultManager(config)
 	if err != nil {
 		log.Panic(nil, map[string]interface{}{
 			"err": err,
@@ -119,7 +119,7 @@ func main() {
 	// Middleware that extracts and stores the token in the context
 	jwtMiddlewareTokenContext := goamiddleware.TokenContext(tokenManager, app.NewJWTSecurity())
 	service.Use(jwtMiddlewareTokenContext)
-	service.Use(token.InjectTokenManager(tokenManager))
+	service.Use(authsupport.InjectTokenManager(tokenManager))
 	service.Use(log.LogRequest(config.IsDeveloperModeEnabled()))
 	app.UseJWTMiddleware(service, jwt.New(tokenManager.PublicKeys(), nil, app.NewJWTSecurity()))
 

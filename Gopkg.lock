@@ -74,9 +74,11 @@
   revision = "0eb93fc6cee1e202cb0f3ade92e99a2423b49283"
 
 [[projects]]
-  digest = "1:e407a94c04f61fffcfe436e0d2b3eea1add846c511bb83607ed7c371cf377b33"
+  digest = "1:7ee8631557e373dc6b435dc8f371b5993fb8d87a8183ee2245df2856c3aa59c4"
   name = "github.com/fabric8-services/fabric8-common"
   packages = [
+    "auth",
+    "auth/jwk",
     "closeable",
     "configuration",
     "convert",
@@ -94,11 +96,9 @@
     "sentry",
     "test/auth",
     "test/suite",
-    "token",
-    "token/jwk",
   ]
   pruneopts = "UT"
-  revision = "c434d96a8f58537ec899abaf98c8f8118c8ca27c"
+  revision = "988ec38ba27dc10cc955f19cce227e7cd8d58528"
 
 [[projects]]
   digest = "1:abeb38ade3f32a92943e5be54f55ed6d6e3b6602761d74b4aab4c9dd45c18abd"
@@ -290,6 +290,14 @@
   revision = "ae77be60afb1dcacde03767a8c37337fad28ac14"
 
 [[projects]]
+  digest = "1:0a69a1c0db3591fcefb47f115b224592c8dfa4368b7ba9fae509d5e16cdc95c8"
+  name = "github.com/konsorten/go-windows-terminal-sequences"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "5c8c8bd35d3832f5d134ae1e1e375b69a4d25242"
+  version = "v1.0.1"
+
+[[projects]]
   digest = "1:8ef506fc2bb9ced9b151dafa592d4046063d744c646c1bbe801982ce87e4bc24"
   name = "github.com/lib/pq"
   packages = [
@@ -444,12 +452,12 @@
   version = "v1.2.0"
 
 [[projects]]
-  digest = "1:8011d6367a04c40f1a9f50274e5e22b1cd5c05104d87cd8cf21d5a56c0cc3bd8"
+  digest = "1:87c2e02fb01c27060ccc5ba7c5a407cc91147726f8f40b70cceeedbc52b1f3a8"
   name = "github.com/sirupsen/logrus"
   packages = ["."]
   pruneopts = "UT"
-  revision = "ba1b36c82c5e05c4f912a88eab0dcd91a171688f"
-  version = "v0.11.5"
+  revision = "e1e72e9de974bd926e5c56f83753fba2df402ce5"
+  version = "v1.3.0"
 
 [[projects]]
   digest = "1:6a4a11ba764a56d2758899ec6f3848d24698d48442ebce85ee7a3f63284526cd"
@@ -532,12 +540,13 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:b8fa1ff0fc20983395978b3f771bb10438accbfe19326b02e236c1d4bf1c91b2"
+  digest = "1:8e241498e35f550e5192ee6b1f6ff2c0a7ffe81feff9541d297facffe1383979"
   name = "golang.org/x/crypto"
   packages = [
     "ed25519",
     "ed25519/internal/edwards25519",
     "pbkdf2",
+    "ssh/terminal",
   ]
   pruneopts = "UT"
   revision = "4d3f4d9ffa16a13f451c3b2999e9c49e9750bf06"
@@ -560,9 +569,12 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:824ea4aea5f0f50d4e4e139e4a3d7528f70b388dd9162c8ce310eb04581a7d84"
+  digest = "1:e10551220bea6da5274318545537df1012268056be6484b83a3338328050cde0"
   name = "golang.org/x/sys"
-  packages = ["unix"]
+  packages = [
+    "unix",
+    "windows",
+  ]
   pruneopts = "UT"
   revision = "ee1b12c67af419cf5a9be3bdbeea7fc1c5f32f11"
 
@@ -633,6 +645,7 @@
   analyzer-version = 1
   input-imports = [
     "github.com/davecgh/go-spew/spew",
+    "github.com/fabric8-services/fabric8-common/auth",
     "github.com/fabric8-services/fabric8-common/closeable",
     "github.com/fabric8-services/fabric8-common/configuration",
     "github.com/fabric8-services/fabric8-common/convert",
@@ -649,7 +662,6 @@
     "github.com/fabric8-services/fabric8-common/sentry",
     "github.com/fabric8-services/fabric8-common/test/auth",
     "github.com/fabric8-services/fabric8-common/test/suite",
-    "github.com/fabric8-services/fabric8-common/token",
     "github.com/fzipp/gocyclo",
     "github.com/goadesign/goa",
     "github.com/goadesign/goa/cors",
