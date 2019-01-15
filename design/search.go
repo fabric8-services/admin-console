@@ -14,6 +14,9 @@ var _ = a.Resource("search", func() {
 			a.GET("users"),
 		)
 		a.Description("Search by fullname")
+		a.Headers(func() {
+			a.Header("Authorization", d.String, "the authorization header")
+		})
 		a.Params(func() {
 			a.Param("q", d.String)
 			a.Param("page[offset]", d.String, "Paging start position") // #428

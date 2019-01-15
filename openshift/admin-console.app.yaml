@@ -74,6 +74,11 @@ objects:
               configMapKeyRef:
                 name: admin-console
                 key: auth.url
+          - name: ADMIN_TENANT_URL
+            valueFrom:
+              configMapKeyRef:
+                name: admin-console
+                key: tenant.url
           - name: ADMIN_SENTRY_DSN
             valueFrom:
               secretKeyRef:

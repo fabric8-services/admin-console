@@ -22,5 +22,6 @@ objects:
     postgres.sslmode: require
     postgres.connection.maxidle: "90"
     postgres.connection.maxopen: "90"
-    auth.url: http://auth:8089
+    auth.url: http://auth
+    tenant.url: http://f8tenant
   

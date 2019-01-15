@@ -19,6 +19,7 @@ func Steps() Scripts {
 	return [][]string{
 		{"000-bootstrap.sql"},
 		{"001-audit-logs.sql"},
+		{"002-tenant-updates-event-types.sql"},
 	}
 }
 

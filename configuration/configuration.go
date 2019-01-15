@@ -12,7 +12,7 @@ import (
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
-	"gopkg.in/yaml.v2"
+	yaml "gopkg.in/yaml.v2"
 )
 
 // String returns the current configuration as a string
@@ -33,14 +33,15 @@ const (
 	// default values as well as to get each value
 
 	// General
-	varHTTPAddress          = "http.address"
-	varHeaderMaxLength      = "header.maxlength"
-	varMetricsHTTPAddress   = "metrics.http.address"
-	varDeveloperModeEnabled = "developer.mode.enabled"
-	varCleanTestDataEnabled = "clean.test.data"
-	varDBLogsEnabled        = "enable.db.logs"
-	varLogLevel             = "log.level"
-	varLogJSON              = "log.json"
+	varHTTPAddress                        = "http.address"
+	varHeaderMaxLength                    = "header.maxlength"
+	varMetricsHTTPAddress                 = "metrics.http.address"
+	varDeveloperModeEnabled               = "developer.mode.enabled"
+	varCleanTestDataEnabled               = "clean.test.data"
+	varCleanTestDataErrorReportingEnabled = "clean.test.data.error.reporting"
+	varDBLogsEnabled                      = "enable.db.logs"
+	varLogLevel                           = "log.level"
+	varLogJSON                            = "log.json"
 
 	// Postgres
 	varPostgresHost                 = "postgres.host"
@@ -62,7 +63,8 @@ const (
 	varSentryDSN   = "sentry.dsn"
 
 	// other services
-	varAuthURL = "auth.url"
+	varAuthURL   = "auth.url"
+	varTenantURL = "tenant.url"
 )
 
 // Configuration encapsulates the Viper configuration object which stores the configuration data in-memory.
@@ -149,6 +151,11 @@ func (c *Configuration) GetAuthServiceURL() string {
 	return c.v.GetString(varAuthURL)
 }
 
+// GetTenantServiceURL returns Tenant Service URL
+func (c *Configuration) GetTenantServiceURL() string {
+	return c.v.GetString(varTenantURL)
+}
+
 func (c *Configuration) setConfigDefaults() {
 	//---------
 	// Postgres
@@ -158,7 +165,7 @@ func (c *Configuration) setConfigDefaults() {
 	c.v.SetTypeByDefaultValue(true)
 
 	c.v.SetDefault(varPostgresHost, "localhost")
-	c.v.SetDefault(varPostgresPort, 5434)
+	c.v.SetDefault(varPostgresPort, 5435)
 	c.v.SetDefault(varPostgresUser, "postgres")
 	c.v.SetDefault(varPostgresDatabase, "postgres")
 	c.v.SetDefault(varPostgresPassword, defaultDBPassword)
@@ -199,11 +206,6 @@ func (c *Configuration) setConfigDefaults() {
 	c.v.SetDefault(varDBLogsEnabled, false)
 
 	c.v.SetDefault(varLogLevel, defaultLogLevel)
-
-	// By default, test data should be cleaned from DB, unless explicitely said otherwise.
-	c.v.SetDefault(varCleanTestDataEnabled, true)
-	// By default, DB logs are not output in the console
-	c.v.SetDefault(varDBLogsEnabled, false)
 
 }
 
@@ -305,6 +307,11 @@ func (c *Configuration) IsDeveloperModeEnabled() bool {
 // IsCleanTestDataEnabled returns `true` if the test data should be cleaned after each test. (default: true)
 func (c *Configuration) IsCleanTestDataEnabled() bool {
 	return c.v.GetBool(varCleanTestDataEnabled)
+}
+
+// IsCleanTestDataErrorReportingRequired returns `true` if the test data should be cleaned after each test. (default: true)
+func (c *Configuration) IsCleanTestDataErrorReportingRequired() bool {
+	return c.v.GetBool(varCleanTestDataErrorReportingEnabled)
 }
 
 // IsDBLogsEnabled returns `true` if the DB logs (ie, SQL queries) should be output in the console. (default: false)
