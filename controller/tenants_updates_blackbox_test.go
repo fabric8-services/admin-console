@@ -27,38 +27,38 @@ import (
 	gock "gopkg.in/h2non/gock.v1"
 )
 
-func newTenantUpdatesController(config controller.TenantUpdatesControllerConfiguration, db application.DB) (*goa.Service, *controller.TenantUpdatesController) {
+func newTenantsUpdateController(config controller.TenantsUpdateControllerConfiguration, db application.DB) (*goa.Service, *controller.TenantsUpdateController) {
 	svc := goa.New("search")
-	ctrl := controller.NewTenantUpdatesController(svc,
+	ctrl := controller.NewTenantsUpdateController(svc,
 		config,
 		db,
 	)
 	return svc, ctrl
 }
 
-type TenantUpdatesControllerBlackboxTestSuite struct {
+type TenantsUpdateControllerBlackboxTestSuite struct {
 	testsuite.DBTestSuite
 	app *application.GormApplication
 }
 
-func (s *TenantUpdatesControllerBlackboxTestSuite) SetupSuite() {
+func (s *TenantsUpdateControllerBlackboxTestSuite) SetupSuite() {
 	s.DBTestSuite.SetupSuite()
 	s.app = application.NewGormApplication(s.DB)
 }
 
-func TestTenantUpdatesController(t *testing.T) {
+func TestTenantsUpdateController(t *testing.T) {
 	resource.Require(t, resource.Database)
 	config := configuration.New()
-	suite.Run(t, &TenantUpdatesControllerBlackboxTestSuite{DBTestSuite: testsuite.NewDBTestSuite(config)})
+	suite.Run(t, &TenantsUpdateControllerBlackboxTestSuite{DBTestSuite: testsuite.NewDBTestSuite(config)})
 }
 
-func (s *TenantUpdatesControllerBlackboxTestSuite) TestShowTenantUpdates() {
+func (s *TenantsUpdateControllerBlackboxTestSuite) TestShowTenantsUpdate() {
 	// given
-	config := testconfig.NewTenantUpdatesControllerConfigurationMock(s.T())
+	config := testconfig.NewTenantsUpdateControllerConfigurationMock(s.T())
 	config.GetTenantServiceURLFunc = func() string {
 		return "https://test-tenant"
 	}
-	svc, ctrl := newTenantUpdatesController(config, s.app)
+	svc, ctrl := newTenantsUpdateController(config, s.app)
 	defer gock.OffAll()
 
 	s.T().Run("ok", func(t *testing.T) {
@@ -73,7 +73,7 @@ func (s *TenantUpdatesControllerBlackboxTestSuite) TestShowTenantUpdates() {
 			MatchHeader("Authorization", authzHeader).
 			Reply(http.StatusOK).BodyString(`{"data":"whatever"}`)
 		// when
-		apptest.ShowTenantUpdatesOK(t, ctx, svc, ctrl, &authzHeader)
+		apptest.ShowTenantsUpdateOK(t, ctx, svc, ctrl, &authzHeader)
 		// then check that an audit record was created
 		assertAuditLog(t, s.DB, *identity, auditlog.ShowTenantUpdate, auditlog.EventParams{})
 	})
@@ -87,7 +87,7 @@ func (s *TenantUpdatesControllerBlackboxTestSuite) TestShowTenantUpdates() {
 				Reply(http.StatusUnauthorized)
 			ctx := context.Background() // context is missing a JWT
 			// when/then
-			apptest.ShowTenantUpdatesUnauthorized(t, ctx, svc, ctrl, nil)
+			apptest.ShowTenantsUpdateUnauthorized(t, ctx, svc, ctrl, nil)
 		})
 
 		t.Run("unauthorized", func(t *testing.T) {
@@ -102,7 +102,7 @@ func (s *TenantUpdatesControllerBlackboxTestSuite) TestShowTenantUpdates() {
 				MatchHeader("Authorization", authzHeader).
 				Reply(http.StatusUnauthorized)
 			// when
-			apptest.ShowTenantUpdatesUnauthorized(t, ctx, svc, ctrl, &authzHeader)
+			apptest.ShowTenantsUpdateUnauthorized(t, ctx, svc, ctrl, &authzHeader)
 			// then check that an audit record was created
 			assertAuditLog(t, s.DB, *identity, auditlog.ShowTenantUpdate, auditlog.EventParams{})
 		})
@@ -119,19 +119,19 @@ func (s *TenantUpdatesControllerBlackboxTestSuite) TestShowTenantUpdates() {
 				MatchHeader("Authorization", authzHeader).
 				Reply(http.StatusInternalServerError)
 			// when
-			apptest.ShowTenantUpdatesInternalServerError(t, ctx, svc, ctrl, &authzHeader)
+			apptest.ShowTenantsUpdateInternalServerError(t, ctx, svc, ctrl, &authzHeader)
 			// then check that an audit record was created
 			assertAuditLog(t, s.DB, *identity, auditlog.ShowTenantUpdate, auditlog.EventParams{})
 		})
 	})
 }
-func (s *TenantUpdatesControllerBlackboxTestSuite) TestStartTenantUpdates() {
+func (s *TenantsUpdateControllerBlackboxTestSuite) TestStartTenantsUpdate() {
 	// given
-	config := testconfig.NewTenantUpdatesControllerConfigurationMock(s.T())
+	config := testconfig.NewTenantsUpdateControllerConfigurationMock(s.T())
 	config.GetTenantServiceURLFunc = func() string {
 		return "https://test-tenant"
 	}
-	svc, ctrl := newTenantUpdatesController(config, s.app)
+	svc, ctrl := newTenantsUpdateController(config, s.app)
 	defer gock.OffAll()
 
 	s.T().Run("ok", func(t *testing.T) {
@@ -148,7 +148,7 @@ func (s *TenantUpdatesControllerBlackboxTestSuite) TestStartTenantUpdates() {
 				MatchHeader("Authorization", authzHeader).
 				Reply(http.StatusAccepted).BodyString(`{"data":"whatever"}`)
 			// when
-			apptest.StartTenantUpdatesAccepted(t, ctx, svc, ctrl, nil, nil, &authzHeader)
+			apptest.StartTenantsUpdateAccepted(t, ctx, svc, ctrl, nil, nil, &authzHeader)
 			// then check that an audit record was created
 			assertAuditLog(t, s.DB, *identity, auditlog.StartTenantUpdate, auditlog.EventParams{})
 		})
@@ -167,7 +167,7 @@ func (s *TenantUpdatesControllerBlackboxTestSuite) TestStartTenantUpdates() {
 			// when
 			cluster := "cluster1"
 			envType := "stage"
-			apptest.StartTenantUpdatesAccepted(t, ctx, svc, ctrl, &cluster, &envType, &authzHeader)
+			apptest.StartTenantsUpdateAccepted(t, ctx, svc, ctrl, &cluster, &envType, &authzHeader)
 			// then check that an audit record was created
 			assertAuditLog(t, s.DB, *identity, auditlog.StartTenantUpdate, auditlog.EventParams{
 				"clusterURL": cluster,
@@ -185,7 +185,7 @@ func (s *TenantUpdatesControllerBlackboxTestSuite) TestStartTenantUpdates() {
 				Reply(http.StatusUnauthorized)
 			ctx := context.Background() // context is missing a JWT
 			// when/then
-			apptest.StartTenantUpdatesUnauthorized(t, ctx, svc, ctrl, nil, nil, nil)
+			apptest.StartTenantsUpdateUnauthorized(t, ctx, svc, ctrl, nil, nil, nil)
 		})
 
 		t.Run("unauthorized", func(t *testing.T) {
@@ -200,7 +200,7 @@ func (s *TenantUpdatesControllerBlackboxTestSuite) TestStartTenantUpdates() {
 				MatchHeader("Authorization", authzHeader).
 				Reply(http.StatusUnauthorized)
 			// when
-			apptest.StartTenantUpdatesUnauthorized(t, ctx, svc, ctrl, nil, nil, &authzHeader)
+			apptest.StartTenantsUpdateUnauthorized(t, ctx, svc, ctrl, nil, nil, &authzHeader)
 			// then check that an audit record was created
 			assertAuditLog(t, s.DB, *identity, auditlog.StartTenantUpdate, auditlog.EventParams{})
 		})
@@ -217,7 +217,7 @@ func (s *TenantUpdatesControllerBlackboxTestSuite) TestStartTenantUpdates() {
 				MatchHeader("Authorization", authzHeader).
 				Reply(http.StatusConflict)
 			// when
-			apptest.StartTenantUpdatesConflict(t, ctx, svc, ctrl, nil, nil, &authzHeader)
+			apptest.StartTenantsUpdateConflict(t, ctx, svc, ctrl, nil, nil, &authzHeader)
 			// then check that an audit record was created
 			assertAuditLog(t, s.DB, *identity, auditlog.StartTenantUpdate, auditlog.EventParams{})
 		})
@@ -233,7 +233,7 @@ func (s *TenantUpdatesControllerBlackboxTestSuite) TestStartTenantUpdates() {
 				MatchHeader("Authorization", authzHeader).
 				Reply(http.StatusBadRequest)
 			// when
-			apptest.StartTenantUpdatesBadRequest(t, ctx, svc, ctrl, nil, nil, &authzHeader)
+			apptest.StartTenantsUpdateBadRequest(t, ctx, svc, ctrl, nil, nil, &authzHeader)
 			// then check that an audit record was created
 			assertAuditLog(t, s.DB, *identity, auditlog.StartTenantUpdate, auditlog.EventParams{})
 		})
@@ -250,19 +250,19 @@ func (s *TenantUpdatesControllerBlackboxTestSuite) TestStartTenantUpdates() {
 				MatchHeader("Authorization", authzHeader).
 				Reply(http.StatusInternalServerError)
 			// when
-			apptest.StartTenantUpdatesInternalServerError(t, ctx, svc, ctrl, nil, nil, &authzHeader)
+			apptest.StartTenantsUpdateInternalServerError(t, ctx, svc, ctrl, nil, nil, &authzHeader)
 			// then check that an audit record was created
 			assertAuditLog(t, s.DB, *identity, auditlog.StartTenantUpdate, auditlog.EventParams{})
 		})
 	})
 }
-func (s *TenantUpdatesControllerBlackboxTestSuite) TestStopTenantUpdates() {
+func (s *TenantsUpdateControllerBlackboxTestSuite) TestStopTenantsUpdate() {
 	// given
-	config := testconfig.NewTenantUpdatesControllerConfigurationMock(s.T())
+	config := testconfig.NewTenantsUpdateControllerConfigurationMock(s.T())
 	config.GetTenantServiceURLFunc = func() string {
 		return "https://test-tenant"
 	}
-	svc, ctrl := newTenantUpdatesController(config, s.app)
+	svc, ctrl := newTenantsUpdateController(config, s.app)
 	defer gock.OffAll()
 
 	s.T().Run("accepted", func(t *testing.T) {
@@ -277,7 +277,7 @@ func (s *TenantUpdatesControllerBlackboxTestSuite) TestStopTenantUpdates() {
 			MatchHeader("Authorization", authzHeader).
 			Reply(http.StatusAccepted).BodyString(`{"data":"whatever"}`)
 		// when
-		apptest.StopTenantUpdatesAccepted(t, ctx, svc, ctrl, &authzHeader)
+		apptest.StopTenantsUpdateAccepted(t, ctx, svc, ctrl, &authzHeader)
 		// then check that an audit record was created
 		assertAuditLog(t, s.DB, *identity, auditlog.StopTenantUpdate, auditlog.EventParams{})
 	})
@@ -291,7 +291,7 @@ func (s *TenantUpdatesControllerBlackboxTestSuite) TestStopTenantUpdates() {
 				Reply(http.StatusUnauthorized)
 			ctx := context.Background() // context is missing a JWT
 			// when/then
-			apptest.ShowTenantUpdatesUnauthorized(t, ctx, svc, ctrl, nil)
+			apptest.ShowTenantsUpdateUnauthorized(t, ctx, svc, ctrl, nil)
 		})
 
 		t.Run("unauthorized", func(t *testing.T) {
@@ -306,7 +306,7 @@ func (s *TenantUpdatesControllerBlackboxTestSuite) TestStopTenantUpdates() {
 				MatchHeader("Authorization", authzHeader).
 				Reply(http.StatusUnauthorized)
 			// when
-			apptest.StopTenantUpdatesUnauthorized(t, ctx, svc, ctrl, &authzHeader)
+			apptest.StopTenantsUpdateUnauthorized(t, ctx, svc, ctrl, &authzHeader)
 			// then check that an audit record was created
 			assertAuditLog(t, s.DB, *identity, auditlog.StopTenantUpdate, auditlog.EventParams{})
 		})
@@ -323,7 +323,7 @@ func (s *TenantUpdatesControllerBlackboxTestSuite) TestStopTenantUpdates() {
 				MatchHeader("Authorization", authzHeader).
 				Reply(http.StatusInternalServerError)
 			// when
-			apptest.StopTenantUpdatesInternalServerError(t, ctx, svc, ctrl, &authzHeader)
+			apptest.StopTenantsUpdateInternalServerError(t, ctx, svc, ctrl, &authzHeader)
 			// then check that an audit record was created
 			assertAuditLog(t, s.DB, *identity, auditlog.StopTenantUpdate, auditlog.EventParams{})
 		})

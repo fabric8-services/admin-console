@@ -10,29 +10,29 @@ import (
 	"github.com/goadesign/goa"
 )
 
-// TenantUpdatesController implements the TenantUpdates resource.
-type TenantUpdatesController struct {
+// TenantsUpdateController implements the TenantsUpdate resource.
+type TenantsUpdateController struct {
 	*goa.Controller
-	config TenantUpdatesControllerConfiguration
+	config TenantsUpdateControllerConfiguration
 	db     application.DB
 }
 
-// TenantUpdatesControllerConfiguration the configuration for the SearchController
-type TenantUpdatesControllerConfiguration interface {
+// TenantsUpdateControllerConfiguration the configuration for the SearchController
+type TenantsUpdateControllerConfiguration interface {
 	GetTenantServiceURL() string
 }
 
-// NewTenantUpdatesController creates a TenantUpdates controller.
-func NewTenantUpdatesController(service *goa.Service, config TenantUpdatesControllerConfiguration, db application.DB) *TenantUpdatesController {
-	return &TenantUpdatesController{
-		Controller: service.NewController("TenantUpdatesController"),
+// NewTenantsUpdateController creates a TenantsUpdate controller.
+func NewTenantsUpdateController(service *goa.Service, config TenantsUpdateControllerConfiguration, db application.DB) *TenantsUpdateController {
+	return &TenantsUpdateController{
+		Controller: service.NewController("TenantsUpdateController"),
 		config:     config,
 		db:         db,
 	}
 }
 
 // Show returns information about the ongoing tenant update
-func (c *TenantUpdatesController) Show(ctx *app.ShowTenantUpdatesContext) error {
+func (c *TenantsUpdateController) Show(ctx *app.ShowTenantsUpdateContext) error {
 	tokenManager, err := token.ReadManagerFromContext(ctx)
 	if err != nil {
 		return app.JSONErrorResponse(ctx, errors.NewUnauthorizedError("missing token manager in the request context"))
@@ -56,7 +56,7 @@ func (c *TenantUpdatesController) Show(ctx *app.ShowTenantUpdatesContext) error 
 }
 
 // Start starts a tenant update
-func (c *TenantUpdatesController) Start(ctx *app.StartTenantUpdatesContext) error {
+func (c *TenantsUpdateController) Start(ctx *app.StartTenantsUpdateContext) error {
 	tokenManager, err := token.ReadManagerFromContext(ctx)
 	if err != nil {
 		return app.JSONErrorResponse(ctx, errors.NewUnauthorizedError("missing token manager in the request context"))
@@ -87,7 +87,7 @@ func (c *TenantUpdatesController) Start(ctx *app.StartTenantUpdatesContext) erro
 }
 
 // Stop stops the ongoing tenant update
-func (c *TenantUpdatesController) Stop(ctx *app.StopTenantUpdatesContext) error {
+func (c *TenantsUpdateController) Stop(ctx *app.StopTenantsUpdateContext) error {
 	tokenManager, err := token.ReadManagerFromContext(ctx)
 	if err != nil {
 		return app.JSONErrorResponse(ctx, errors.NewUnauthorizedError("missing token manager in the request context"))

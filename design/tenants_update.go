@@ -5,8 +5,8 @@ import (
 	a "github.com/goadesign/goa/design/apidsl"
 )
 
-var _ = a.Resource("tenant_updates", func() {
-	a.BasePath("/tenant/updates")
+var _ = a.Resource("tenants_update", func() {
+	a.BasePath("/tenants/update")
 
 	a.Action("show", func() {
 		a.Security("jwt")
