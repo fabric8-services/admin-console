@@ -27,38 +27,38 @@ import (
 	gock "gopkg.in/h2non/gock.v1"
 )
 
-func newTenantsUpdateController(config controller.TenantsUpdateControllerConfiguration, db application.DB) (*goa.Service, *controller.TenantsUpdateController) {
+func newTenantUpdateController(config controller.TenantUpdateControllerConfiguration, db application.DB) (*goa.Service, *controller.TenantUpdateController) {
 	svc := goa.New("search")
-	ctrl := controller.NewTenantsUpdateController(svc,
+	ctrl := controller.NewTenantUpdateController(svc,
 		config,
 		db,
 	)
 	return svc, ctrl
 }
 
-type TenantsUpdateControllerBlackboxTestSuite struct {
+type TenantUpdateControllerBlackboxTestSuite struct {
 	testsuite.DBTestSuite
 	app *application.GormApplication
 }
 
-func (s *TenantsUpdateControllerBlackboxTestSuite) SetupSuite() {
+func (s *TenantUpdateControllerBlackboxTestSuite) SetupSuite() {
 	s.DBTestSuite.SetupSuite()
 	s.app = application.NewGormApplication(s.DB)
 }
 
-func TestTenantsUpdateController(t *testing.T) {
+func TestTenantUpdateController(t *testing.T) {
 	resource.Require(t, resource.Database)
 	config := configuration.New()
-	suite.Run(t, &TenantsUpdateControllerBlackboxTestSuite{DBTestSuite: testsuite.NewDBTestSuite(config)})
+	suite.Run(t, &TenantUpdateControllerBlackboxTestSuite{DBTestSuite: testsuite.NewDBTestSuite(config)})
 }
 
-func (s *TenantsUpdateControllerBlackboxTestSuite) TestShowTenantsUpdate() {
+func (s *TenantUpdateControllerBlackboxTestSuite) TestShowTenantUpdate() {
 	// given
-	config := testconfig.NewTenantsUpdateControllerConfigurationMock(s.T())
+	config := testconfig.NewTenantUpdateControllerConfigurationMock(s.T())
 	config.GetTenantServiceURLFunc = func() string {
-		return "https://test-tenant"
+		return "http://test-tenant"
 	}
-	svc, ctrl := newTenantsUpdateController(config, s.app)
+	svc, ctrl := newTenantUpdateController(config, s.app)
 	defer gock.OffAll()
 
 	s.T().Run("ok", func(t *testing.T) {
@@ -68,12 +68,12 @@ func (s *TenantsUpdateControllerBlackboxTestSuite) TestShowTenantsUpdate() {
 		tk := goajwt.ContextJWT(ctx)
 		require.NotNil(t, tk)
 		authzHeader := fmt.Sprintf("Bearer %s", tk.Raw)
-		gock.New("https://test-tenant").
-			Get("/api/tenant/updates").
+		gock.New("http://test-tenant").
+			Get("/api/update").
 			MatchHeader("Authorization", authzHeader).
 			Reply(http.StatusOK).BodyString(`{"data":"whatever"}`)
 		// when
-		apptest.ShowTenantsUpdateOK(t, ctx, svc, ctrl, &authzHeader)
+		apptest.ShowTenantUpdateOK(t, ctx, svc, ctrl, &authzHeader)
 		// then check that an audit record was created
 		assertAuditLog(t, s.DB, *identity, auditlog.ShowTenantUpdate, auditlog.EventParams{})
 	})
@@ -83,11 +83,11 @@ func (s *TenantsUpdateControllerBlackboxTestSuite) TestShowTenantsUpdate() {
 		t.Run("missing JWT", func(t *testing.T) {
 			// given
 			gock.New("http://test-tenant").
-				Get("/api/tenant/updates").
+				Get("/api/update").
 				Reply(http.StatusUnauthorized)
 			ctx := context.Background() // context is missing a JWT
 			// when/then
-			apptest.ShowTenantsUpdateUnauthorized(t, ctx, svc, ctrl, nil)
+			apptest.ShowTenantUpdateUnauthorized(t, ctx, svc, ctrl, nil)
 		})
 
 		t.Run("unauthorized", func(t *testing.T) {
@@ -97,12 +97,12 @@ func (s *TenantsUpdateControllerBlackboxTestSuite) TestShowTenantsUpdate() {
 			tk := goajwt.ContextJWT(ctx)
 			require.NotNil(t, tk)
 			authzHeader := fmt.Sprintf("Bearer %s", tk.Raw)
-			gock.New("https://test-tenant").
-				Get("/api/tenant/updates").
+			gock.New("http://test-tenant").
+				Get("/api/update").
 				MatchHeader("Authorization", authzHeader).
 				Reply(http.StatusUnauthorized)
 			// when
-			apptest.ShowTenantsUpdateUnauthorized(t, ctx, svc, ctrl, &authzHeader)
+			apptest.ShowTenantUpdateUnauthorized(t, ctx, svc, ctrl, &authzHeader)
 			// then check that an audit record was created
 			assertAuditLog(t, s.DB, *identity, auditlog.ShowTenantUpdate, auditlog.EventParams{})
 		})
@@ -114,24 +114,24 @@ func (s *TenantsUpdateControllerBlackboxTestSuite) TestShowTenantsUpdate() {
 			tk := goajwt.ContextJWT(ctx)
 			require.NotNil(t, tk)
 			authzHeader := fmt.Sprintf("Bearer %s", tk.Raw)
-			gock.New("https://test-tenant").
-				Get("/api/tenant/updates").
+			gock.New("http://test-tenant").
+				Get("/api/update").
 				MatchHeader("Authorization", authzHeader).
 				Reply(http.StatusInternalServerError)
 			// when
-			apptest.ShowTenantsUpdateInternalServerError(t, ctx, svc, ctrl, &authzHeader)
+			apptest.ShowTenantUpdateInternalServerError(t, ctx, svc, ctrl, &authzHeader)
 			// then check that an audit record was created
 			assertAuditLog(t, s.DB, *identity, auditlog.ShowTenantUpdate, auditlog.EventParams{})
 		})
 	})
 }
-func (s *TenantsUpdateControllerBlackboxTestSuite) TestStartTenantsUpdate() {
+func (s *TenantUpdateControllerBlackboxTestSuite) TestStartTenantUpdate() {
 	// given
-	config := testconfig.NewTenantsUpdateControllerConfigurationMock(s.T())
+	config := testconfig.NewTenantUpdateControllerConfigurationMock(s.T())
 	config.GetTenantServiceURLFunc = func() string {
-		return "https://test-tenant"
+		return "http://test-tenant"
 	}
-	svc, ctrl := newTenantsUpdateController(config, s.app)
+	svc, ctrl := newTenantUpdateController(config, s.app)
 	defer gock.OffAll()
 
 	s.T().Run("ok", func(t *testing.T) {
@@ -143,12 +143,12 @@ func (s *TenantsUpdateControllerBlackboxTestSuite) TestStartTenantsUpdate() {
 			tk := goajwt.ContextJWT(ctx)
 			require.NotNil(t, tk)
 			authzHeader := fmt.Sprintf("Bearer %s", tk.Raw)
-			gock.New("https://test-tenant").
-				Post("/api/tenant/updates").
+			gock.New("http://test-tenant").
+				Post("/api/update").
 				MatchHeader("Authorization", authzHeader).
 				Reply(http.StatusAccepted).BodyString(`{"data":"whatever"}`)
 			// when
-			apptest.StartTenantsUpdateAccepted(t, ctx, svc, ctrl, nil, nil, &authzHeader)
+			apptest.StartTenantUpdateAccepted(t, ctx, svc, ctrl, nil, nil, &authzHeader)
 			// then check that an audit record was created
 			assertAuditLog(t, s.DB, *identity, auditlog.StartTenantUpdate, auditlog.EventParams{})
 		})
@@ -160,14 +160,16 @@ func (s *TenantsUpdateControllerBlackboxTestSuite) TestStartTenantsUpdate() {
 			tk := goajwt.ContextJWT(ctx)
 			require.NotNil(t, tk)
 			authzHeader := fmt.Sprintf("Bearer %s", tk.Raw)
-			gock.New("https://test-tenant").
-				Post("/api/tenant/updates").
+			cluster := "cluster1"
+			envType := "stage"
+			gock.New("http://test-tenant").
+				Post("/api/update").
+				MatchParam("cluster_uRL", cluster).
+				MatchParam("env_type", envType).
 				MatchHeader("Authorization", authzHeader).
 				Reply(http.StatusAccepted).BodyString(`{"data":"whatever"}`)
 			// when
-			cluster := "cluster1"
-			envType := "stage"
-			apptest.StartTenantsUpdateAccepted(t, ctx, svc, ctrl, &cluster, &envType, &authzHeader)
+			apptest.StartTenantUpdateAccepted(t, ctx, svc, ctrl, &cluster, &envType, &authzHeader)
 			// then check that an audit record was created
 			assertAuditLog(t, s.DB, *identity, auditlog.StartTenantUpdate, auditlog.EventParams{
 				"clusterURL": cluster,
@@ -181,11 +183,11 @@ func (s *TenantsUpdateControllerBlackboxTestSuite) TestStartTenantsUpdate() {
 		t.Run("missing JWT", func(t *testing.T) {
 			// given
 			gock.New("http://test-tenant").
-				Post("/api/tenant/updates").
+				Post("/api/update").
 				Reply(http.StatusUnauthorized)
 			ctx := context.Background() // context is missing a JWT
 			// when/then
-			apptest.StartTenantsUpdateUnauthorized(t, ctx, svc, ctrl, nil, nil, nil)
+			apptest.StartTenantUpdateUnauthorized(t, ctx, svc, ctrl, nil, nil, nil)
 		})
 
 		t.Run("unauthorized", func(t *testing.T) {
@@ -195,12 +197,12 @@ func (s *TenantsUpdateControllerBlackboxTestSuite) TestStartTenantsUpdate() {
 			tk := goajwt.ContextJWT(ctx)
 			require.NotNil(t, tk)
 			authzHeader := fmt.Sprintf("Bearer %s", tk.Raw)
-			gock.New("https://test-tenant").
-				Post("/api/tenant/updates").
+			gock.New("http://test-tenant").
+				Post("/api/update").
 				MatchHeader("Authorization", authzHeader).
 				Reply(http.StatusUnauthorized)
 			// when
-			apptest.StartTenantsUpdateUnauthorized(t, ctx, svc, ctrl, nil, nil, &authzHeader)
+			apptest.StartTenantUpdateUnauthorized(t, ctx, svc, ctrl, nil, nil, &authzHeader)
 			// then check that an audit record was created
 			assertAuditLog(t, s.DB, *identity, auditlog.StartTenantUpdate, auditlog.EventParams{})
 		})
@@ -212,12 +214,12 @@ func (s *TenantsUpdateControllerBlackboxTestSuite) TestStartTenantsUpdate() {
 			tk := goajwt.ContextJWT(ctx)
 			require.NotNil(t, tk)
 			authzHeader := fmt.Sprintf("Bearer %s", tk.Raw)
-			gock.New("https://test-tenant").
-				Post("/api/tenant/updates").
+			gock.New("http://test-tenant").
+				Post("/api/update").
 				MatchHeader("Authorization", authzHeader).
 				Reply(http.StatusConflict)
 			// when
-			apptest.StartTenantsUpdateConflict(t, ctx, svc, ctrl, nil, nil, &authzHeader)
+			apptest.StartTenantUpdateConflict(t, ctx, svc, ctrl, nil, nil, &authzHeader)
 			// then check that an audit record was created
 			assertAuditLog(t, s.DB, *identity, auditlog.StartTenantUpdate, auditlog.EventParams{})
 		})
@@ -228,12 +230,12 @@ func (s *TenantsUpdateControllerBlackboxTestSuite) TestStartTenantsUpdate() {
 			tk := goajwt.ContextJWT(ctx)
 			require.NotNil(t, tk)
 			authzHeader := fmt.Sprintf("Bearer %s", tk.Raw)
-			gock.New("https://test-tenant").
-				Post("/api/tenant/updates").
+			gock.New("http://test-tenant").
+				Post("/api/update").
 				MatchHeader("Authorization", authzHeader).
 				Reply(http.StatusBadRequest)
 			// when
-			apptest.StartTenantsUpdateBadRequest(t, ctx, svc, ctrl, nil, nil, &authzHeader)
+			apptest.StartTenantUpdateBadRequest(t, ctx, svc, ctrl, nil, nil, &authzHeader)
 			// then check that an audit record was created
 			assertAuditLog(t, s.DB, *identity, auditlog.StartTenantUpdate, auditlog.EventParams{})
 		})
@@ -245,24 +247,24 @@ func (s *TenantsUpdateControllerBlackboxTestSuite) TestStartTenantsUpdate() {
 			tk := goajwt.ContextJWT(ctx)
 			require.NotNil(t, tk)
 			authzHeader := fmt.Sprintf("Bearer %s", tk.Raw)
-			gock.New("https://test-tenant").
-				Post("/api/tenant/updates").
+			gock.New("http://test-tenant").
+				Post("/api/update").
 				MatchHeader("Authorization", authzHeader).
 				Reply(http.StatusInternalServerError)
 			// when
-			apptest.StartTenantsUpdateInternalServerError(t, ctx, svc, ctrl, nil, nil, &authzHeader)
+			apptest.StartTenantUpdateInternalServerError(t, ctx, svc, ctrl, nil, nil, &authzHeader)
 			// then check that an audit record was created
 			assertAuditLog(t, s.DB, *identity, auditlog.StartTenantUpdate, auditlog.EventParams{})
 		})
 	})
 }
-func (s *TenantsUpdateControllerBlackboxTestSuite) TestStopTenantsUpdate() {
+func (s *TenantUpdateControllerBlackboxTestSuite) TestStopTenantUpdate() {
 	// given
-	config := testconfig.NewTenantsUpdateControllerConfigurationMock(s.T())
+	config := testconfig.NewTenantUpdateControllerConfigurationMock(s.T())
 	config.GetTenantServiceURLFunc = func() string {
-		return "https://test-tenant"
+		return "http://test-tenant"
 	}
-	svc, ctrl := newTenantsUpdateController(config, s.app)
+	svc, ctrl := newTenantUpdateController(config, s.app)
 	defer gock.OffAll()
 
 	s.T().Run("accepted", func(t *testing.T) {
@@ -272,12 +274,12 @@ func (s *TenantsUpdateControllerBlackboxTestSuite) TestStopTenantsUpdate() {
 		tk := goajwt.ContextJWT(ctx)
 		require.NotNil(t, tk)
 		authzHeader := fmt.Sprintf("Bearer %s", tk.Raw)
-		gock.New("https://test-tenant").
-			Delete("/api/tenant/updates").
+		gock.New("http://test-tenant").
+			Delete("/api/update").
 			MatchHeader("Authorization", authzHeader).
 			Reply(http.StatusAccepted).BodyString(`{"data":"whatever"}`)
 		// when
-		apptest.StopTenantsUpdateAccepted(t, ctx, svc, ctrl, &authzHeader)
+		apptest.StopTenantUpdateAccepted(t, ctx, svc, ctrl, &authzHeader)
 		// then check that an audit record was created
 		assertAuditLog(t, s.DB, *identity, auditlog.StopTenantUpdate, auditlog.EventParams{})
 	})
@@ -287,11 +289,11 @@ func (s *TenantsUpdateControllerBlackboxTestSuite) TestStopTenantsUpdate() {
 		t.Run("missing JWT", func(t *testing.T) {
 			// given
 			gock.New("http://test-tenant").
-				Delete("/api/tenant/updates").
+				Delete("/api/update").
 				Reply(http.StatusUnauthorized)
 			ctx := context.Background() // context is missing a JWT
 			// when/then
-			apptest.ShowTenantsUpdateUnauthorized(t, ctx, svc, ctrl, nil)
+			apptest.ShowTenantUpdateUnauthorized(t, ctx, svc, ctrl, nil)
 		})
 
 		t.Run("unauthorized", func(t *testing.T) {
@@ -301,12 +303,12 @@ func (s *TenantsUpdateControllerBlackboxTestSuite) TestStopTenantsUpdate() {
 			tk := goajwt.ContextJWT(ctx)
 			require.NotNil(t, tk)
 			authzHeader := fmt.Sprintf("Bearer %s", tk.Raw)
-			gock.New("https://test-tenant").
-				Delete("/api/tenant/updates").
+			gock.New("http://test-tenant").
+				Delete("/api/update").
 				MatchHeader("Authorization", authzHeader).
 				Reply(http.StatusUnauthorized)
 			// when
-			apptest.StopTenantsUpdateUnauthorized(t, ctx, svc, ctrl, &authzHeader)
+			apptest.StopTenantUpdateUnauthorized(t, ctx, svc, ctrl, &authzHeader)
 			// then check that an audit record was created
 			assertAuditLog(t, s.DB, *identity, auditlog.StopTenantUpdate, auditlog.EventParams{})
 		})
@@ -318,12 +320,12 @@ func (s *TenantsUpdateControllerBlackboxTestSuite) TestStopTenantsUpdate() {
 			tk := goajwt.ContextJWT(ctx)
 			require.NotNil(t, tk)
 			authzHeader := fmt.Sprintf("Bearer %s", tk.Raw)
-			gock.New("https://test-tenant").
-				Delete("/api/tenant/updates").
+			gock.New("http://test-tenant").
+				Delete("/api/update").
 				MatchHeader("Authorization", authzHeader).
 				Reply(http.StatusInternalServerError)
 			// when
-			apptest.StopTenantsUpdateInternalServerError(t, ctx, svc, ctrl, &authzHeader)
+			apptest.StopTenantUpdateInternalServerError(t, ctx, svc, ctrl, &authzHeader)
 			// then check that an audit record was created
 			assertAuditLog(t, s.DB, *identity, auditlog.StopTenantUpdate, auditlog.EventParams{})
 		})

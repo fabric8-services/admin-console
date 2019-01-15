@@ -11,29 +11,29 @@ import (
 	"github.com/goadesign/goa"
 )
 
-// TenantsUpdateController implements the TenantsUpdate resource.
-type TenantsUpdateController struct {
+// TenantUpdateController implements the TenantUpdate resource.
+type TenantUpdateController struct {
 	*goa.Controller
-	config TenantsUpdateControllerConfiguration
+	config TenantUpdateControllerConfiguration
 	db     application.DB
 }
 
-// TenantsUpdateControllerConfiguration the configuration for the SearchController
-type TenantsUpdateControllerConfiguration interface {
+// TenantUpdateControllerConfiguration the configuration for the SearchController
+type TenantUpdateControllerConfiguration interface {
 	GetTenantServiceURL() string
 }
 
-// NewTenantsUpdateController creates a TenantsUpdate controller.
-func NewTenantsUpdateController(service *goa.Service, config TenantsUpdateControllerConfiguration, db application.DB) *TenantsUpdateController {
-	return &TenantsUpdateController{
-		Controller: service.NewController("TenantsUpdateController"),
+// NewTenantUpdateController creates a TenantUpdate controller.
+func NewTenantUpdateController(service *goa.Service, config TenantUpdateControllerConfiguration, db application.DB) *TenantUpdateController {
+	return &TenantUpdateController{
+		Controller: service.NewController("TenantUpdateController"),
 		config:     config,
 		db:         db,
 	}
 }
 
 // Show returns information about the ongoing tenant update
-func (c *TenantsUpdateController) Show(ctx *app.ShowTenantsUpdateContext) error {
+func (c *TenantUpdateController) Show(ctx *app.ShowTenantUpdateContext) error {
 	identityID, err := authsupport.LocateIdentity(ctx)
 	if err != nil {
 		log.Error(ctx, map[string]interface{}{
@@ -41,13 +41,12 @@ func (c *TenantsUpdateController) Show(ctx *app.ShowTenantsUpdateContext) error 
 		}, "unable to proxy to tenant service")
 		return app.JSONErrorResponse(ctx, errors.NewUnauthorizedError("invalid authorization token (invalid 'sub' claim)"))
 	}
-	record := auditlog.AuditLog{
-		EventTypeID: auditlog.ShowTenantUpdate,
-		IdentityID:  identityID,
-		EventParams: auditlog.EventParams{},
-	}
 	err = application.Transactional(c.db, func(appl application.Application) error {
-		return appl.AuditLogs().Create(ctx, &record)
+		return appl.AuditLogs().Create(ctx, &auditlog.AuditLog{
+			EventTypeID: auditlog.ShowTenantUpdate,
+			IdentityID:  identityID,
+			EventParams: auditlog.EventParams{},
+		})
 	})
 	if err != nil {
 		log.Error(ctx, map[string]interface{}{
@@ -59,7 +58,7 @@ func (c *TenantsUpdateController) Show(ctx *app.ShowTenantsUpdateContext) error 
 }
 
 // Start starts a tenant update
-func (c *TenantsUpdateController) Start(ctx *app.StartTenantsUpdateContext) error {
+func (c *TenantUpdateController) Start(ctx *app.StartTenantUpdateContext) error {
 	identityID, err := authsupport.LocateIdentity(ctx)
 	if err != nil {
 		log.Error(ctx, map[string]interface{}{
@@ -67,20 +66,19 @@ func (c *TenantsUpdateController) Start(ctx *app.StartTenantsUpdateContext) erro
 		}, "unable to proxy to tenant service")
 		return app.JSONErrorResponse(ctx, errors.NewUnauthorizedError("invalid authorization token (invalid 'sub' claim)"))
 	}
-	eventParams := auditlog.EventParams{}
-	if ctx.ClusterURL != nil {
-		eventParams["clusterURL"] = *ctx.ClusterURL
-	}
-	if ctx.EnvType != nil {
-		eventParams["envType"] = *ctx.EnvType
-	}
-	record := auditlog.AuditLog{
-		EventTypeID: auditlog.StartTenantUpdate,
-		IdentityID:  identityID,
-		EventParams: eventParams,
-	}
 	err = application.Transactional(c.db, func(appl application.Application) error {
-		return appl.AuditLogs().Create(ctx, &record)
+		eventParams := auditlog.EventParams{}
+		if ctx.ClusterURL != nil {
+			eventParams["clusterURL"] = *ctx.ClusterURL
+		}
+		if ctx.EnvType != nil {
+			eventParams["envType"] = *ctx.EnvType
+		}
+		return appl.AuditLogs().Create(ctx, &auditlog.AuditLog{
+			EventTypeID: auditlog.StartTenantUpdate,
+			IdentityID:  identityID,
+			EventParams: eventParams,
+		})
 	})
 	if err != nil {
 		log.Error(ctx, map[string]interface{}{
@@ -92,7 +90,7 @@ func (c *TenantsUpdateController) Start(ctx *app.StartTenantsUpdateContext) erro
 }
 
 // Stop stops the ongoing tenant update
-func (c *TenantsUpdateController) Stop(ctx *app.StopTenantsUpdateContext) error {
+func (c *TenantUpdateController) Stop(ctx *app.StopTenantUpdateContext) error {
 	identityID, err := authsupport.LocateIdentity(ctx)
 	if err != nil {
 		log.Error(ctx, map[string]interface{}{
@@ -100,13 +98,12 @@ func (c *TenantsUpdateController) Stop(ctx *app.StopTenantsUpdateContext) error 
 		}, "unable to proxy to tenant service")
 		return app.JSONErrorResponse(ctx, errors.NewUnauthorizedError("invalid authorization token (invalid 'sub' claim)"))
 	}
-	record := auditlog.AuditLog{
-		EventTypeID: auditlog.StopTenantUpdate,
-		IdentityID:  identityID,
-		EventParams: auditlog.EventParams{},
-	}
 	err = application.Transactional(c.db, func(appl application.Application) error {
-		return appl.AuditLogs().Create(ctx, &record)
+		return appl.AuditLogs().Create(ctx, &auditlog.AuditLog{
+			EventTypeID: auditlog.StopTenantUpdate,
+			IdentityID:  identityID,
+			EventParams: auditlog.EventParams{},
+		})
 	})
 	if err != nil {
 		log.Error(ctx, map[string]interface{}{

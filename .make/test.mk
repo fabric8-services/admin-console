@@ -443,7 +443,7 @@ generate-mocks: deps $(MINIMOCK_BIN)
 	-mkdir -p test/generated/controller
 	$(MINIMOCK_BIN) -i controller.DBChecker -o ./test/generated/controller/dbchecker_mock.go -t DBCheckerMock
 	$(MINIMOCK_BIN) -i controller.StatusControllerConfiguration -o ./test/generated/controller/status_controller_configuration_mock.go -t StatusControllerConfigurationMock
-	$(MINIMOCK_BIN) -i controller.TenantsUpdateControllerConfiguration -o ./test/generated/controller/tenants_update_controller_configuration_mock.go -t TenantsUpdateControllerConfigurationMock
+	$(MINIMOCK_BIN) -i controller.TenantUpdateControllerConfiguration -o ./test/generated/controller/tenants_update_controller_configuration_mock.go -t TenantUpdateControllerConfigurationMock
 	
 
 #-------------------------------------------------------------------------------

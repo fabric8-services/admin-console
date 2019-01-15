@@ -132,9 +132,9 @@ func main() {
 	searchCtrl := controller.NewSearchController(service, config, appDB)
 	app.MountSearchController(service, searchCtrl)
 
-	// Mount the '/TenantsUpdate' controller
-	TenantsUpdateCtrl := controller.NewTenantsUpdateController(service, config, appDB)
-	app.MountTenantsUpdateController(service, TenantsUpdateCtrl)
+	// Mount the '/TenantUpdate' controller
+	TenantUpdateCtrl := controller.NewTenantUpdateController(service, config, appDB)
+	app.MountTenantUpdateController(service, TenantUpdateCtrl)
 
 	log.Logger().Infoln("Git Commit SHA: ", app.Commit)
 	log.Logger().Infoln("UTC Build Time: ", app.BuildTime)
