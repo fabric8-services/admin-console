@@ -95,7 +95,7 @@ func (s *TenantUpdateControllerBlackboxTestSuite) TestShowTenantUpdate() {
 				MatchParam("env_type", envType).
 				Reply(http.StatusOK).BodyString(`{"data":"whatever"}`)
 			// when
-			apptest.ShowTenantUpdateOK(t, ctx, svc, ctrl, &authzHeader, nil, nil)
+			apptest.ShowTenantUpdateOK(t, ctx, svc, ctrl, &cluster, &envType, &authzHeader)
 			// then check that an audit record was created
 			assertAuditLog(t, s.DB, *identity, auditlog.ShowTenantUpdate, auditlog.EventParams{
 				"clusterURL": cluster,
@@ -319,7 +319,7 @@ func (s *TenantUpdateControllerBlackboxTestSuite) TestStopTenantUpdate() {
 				Reply(http.StatusUnauthorized)
 			ctx := context.Background() // context is missing a JWT
 			// when/then
-			apptest.ShowTenantUpdateUnauthorized(t, ctx, svc, ctrl, nil)
+			apptest.ShowTenantUpdateUnauthorized(t, ctx, svc, ctrl, nil, nil, nil)
 		})
 
 		t.Run("unauthorized", func(t *testing.T) {
