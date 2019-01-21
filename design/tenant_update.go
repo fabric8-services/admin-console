@@ -16,8 +16,16 @@ var _ = a.Resource("tenant_update", func() {
 		a.Headers(func() {
 			a.Header("Authorization", d.String, "the authorization header")
 		})
+		a.Params(func() {
+			a.Param("cluster_url", d.String, "the URL of the OSO cluster the number of outdated tenants should be limited to")
+			a.Param("env_type", d.String, "environment type the number of outdated tenants should be limited to", func() {
+				a.Enum("user", "che", "jenkins", "stage", "run")
+			})
+		})
+
 		a.Description("Get information about last/ongoing update.")
 		a.Response(d.OK) // here we don't specify a media type, because we're just proxying to `tenant`
+		a.Response(d.BadRequest, JSONAPIErrors)
 		a.Response(d.Unauthorized, JSONAPIErrors)
 		a.Response(d.InternalServerError, JSONAPIErrors)
 	})

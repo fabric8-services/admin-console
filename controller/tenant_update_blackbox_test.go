@@ -62,20 +62,46 @@ func (s *TenantUpdateControllerBlackboxTestSuite) TestShowTenantUpdate() {
 	defer gock.OffAll()
 
 	s.T().Run("ok", func(t *testing.T) {
-		// given
-		ctx, identity, err := testauth.EmbedUserTokenInContext(context.Background(), testauth.NewIdentity())
-		require.NoError(t, err)
-		tk := goajwt.ContextJWT(ctx)
-		require.NotNil(t, tk)
-		authzHeader := fmt.Sprintf("Bearer %s", tk.Raw)
-		gock.New("http://test-tenant").
-			Get("/api/update").
-			MatchHeader("Authorization", authzHeader).
-			Reply(http.StatusOK).BodyString(`{"data":"whatever"}`)
-		// when
-		apptest.ShowTenantUpdateOK(t, ctx, svc, ctrl, &authzHeader)
-		// then check that an audit record was created
-		assertAuditLog(t, s.DB, *identity, auditlog.ShowTenantUpdate, auditlog.EventParams{})
+		t.Run("all clusters all envs", func(t *testing.T) {
+			// given
+			ctx, identity, err := testauth.EmbedUserTokenInContext(context.Background(), testauth.NewIdentity())
+			require.NoError(t, err)
+			tk := goajwt.ContextJWT(ctx)
+			require.NotNil(t, tk)
+			authzHeader := fmt.Sprintf("Bearer %s", tk.Raw)
+			gock.New("http://test-tenant").
+				Get("/api/update").
+				MatchHeader("Authorization", authzHeader).
+				Reply(http.StatusOK).BodyString(`{"data":"whatever"}`)
+			// when
+			apptest.ShowTenantUpdateOK(t, ctx, svc, ctrl, nil, nil, &authzHeader)
+			// then check that an audit record was created
+			assertAuditLog(t, s.DB, *identity, auditlog.ShowTenantUpdate, auditlog.EventParams{})
+		})
+		t.Run("single clusters single env", func(t *testing.T) {
+			// given
+			ctx, identity, err := testauth.EmbedUserTokenInContext(context.Background(), testauth.NewIdentity())
+			require.NoError(t, err)
+			tk := goajwt.ContextJWT(ctx)
+			require.NotNil(t, tk)
+			authzHeader := fmt.Sprintf("Bearer %s", tk.Raw)
+
+			cluster := "cluster1"
+			envType := "stage"
+			gock.New("http://test-tenant").
+				Get("/api/update").
+				MatchHeader("Authorization", authzHeader).
+				MatchParam("cluster_url", cluster).
+				MatchParam("env_type", envType).
+				Reply(http.StatusOK).BodyString(`{"data":"whatever"}`)
+			// when
+			apptest.ShowTenantUpdateOK(t, ctx, svc, ctrl, &cluster, &envType, &authzHeader)
+			// then check that an audit record was created
+			assertAuditLog(t, s.DB, *identity, auditlog.ShowTenantUpdate, auditlog.EventParams{
+				"clusterURL": cluster,
+				"envType":    envType,
+			})
+		})
 	})
 
 	s.T().Run("failures", func(t *testing.T) {
@@ -87,7 +113,7 @@ func (s *TenantUpdateControllerBlackboxTestSuite) TestShowTenantUpdate() {
 				Reply(http.StatusUnauthorized)
 			ctx := context.Background() // context is missing a JWT
 			// when/then
-			apptest.ShowTenantUpdateUnauthorized(t, ctx, svc, ctrl, nil)
+			apptest.ShowTenantUpdateUnauthorized(t, ctx, svc, ctrl, nil, nil, nil)
 		})
 
 		t.Run("unauthorized", func(t *testing.T) {
@@ -102,7 +128,7 @@ func (s *TenantUpdateControllerBlackboxTestSuite) TestShowTenantUpdate() {
 				MatchHeader("Authorization", authzHeader).
 				Reply(http.StatusUnauthorized)
 			// when
-			apptest.ShowTenantUpdateUnauthorized(t, ctx, svc, ctrl, &authzHeader)
+			apptest.ShowTenantUpdateUnauthorized(t, ctx, svc, ctrl, nil, nil, &authzHeader)
 			// then check that an audit record was created
 			assertAuditLog(t, s.DB, *identity, auditlog.ShowTenantUpdate, auditlog.EventParams{})
 		})
@@ -119,7 +145,7 @@ func (s *TenantUpdateControllerBlackboxTestSuite) TestShowTenantUpdate() {
 				MatchHeader("Authorization", authzHeader).
 				Reply(http.StatusInternalServerError)
 			// when
-			apptest.ShowTenantUpdateInternalServerError(t, ctx, svc, ctrl, &authzHeader)
+			apptest.ShowTenantUpdateInternalServerError(t, ctx, svc, ctrl, nil, nil, &authzHeader)
 			// then check that an audit record was created
 			assertAuditLog(t, s.DB, *identity, auditlog.ShowTenantUpdate, auditlog.EventParams{})
 		})
@@ -293,7 +319,7 @@ func (s *TenantUpdateControllerBlackboxTestSuite) TestStopTenantUpdate() {
 				Reply(http.StatusUnauthorized)
 			ctx := context.Background() // context is missing a JWT
 			// when/then
-			apptest.ShowTenantUpdateUnauthorized(t, ctx, svc, ctrl, nil)
+			apptest.ShowTenantUpdateUnauthorized(t, ctx, svc, ctrl, nil, nil, nil)
 		})
 
 		t.Run("unauthorized", func(t *testing.T) {
