@@ -74,7 +74,7 @@ func (s *TenantUpdateControllerBlackboxTestSuite) TestShowTenantUpdate() {
 				MatchHeader("Authorization", authzHeader).
 				Reply(http.StatusOK).BodyString(`{"data":"whatever"}`)
 			// when
-			apptest.ShowTenantUpdateOK(t, ctx, svc, ctrl, &authzHeader, nil, nil)
+			apptest.ShowTenantUpdateOK(t, ctx, svc, ctrl, nil, nil, &authzHeader)
 			// then check that an audit record was created
 			assertAuditLog(t, s.DB, *identity, auditlog.ShowTenantUpdate, auditlog.EventParams{})
 		})
@@ -128,7 +128,7 @@ func (s *TenantUpdateControllerBlackboxTestSuite) TestShowTenantUpdate() {
 				MatchHeader("Authorization", authzHeader).
 				Reply(http.StatusUnauthorized)
 			// when
-			apptest.ShowTenantUpdateUnauthorized(t, ctx, svc, ctrl, &authzHeader, nil, nil)
+			apptest.ShowTenantUpdateUnauthorized(t, ctx, svc, ctrl, nil, nil, &authzHeader)
 			// then check that an audit record was created
 			assertAuditLog(t, s.DB, *identity, auditlog.ShowTenantUpdate, auditlog.EventParams{})
 		})
@@ -145,7 +145,7 @@ func (s *TenantUpdateControllerBlackboxTestSuite) TestShowTenantUpdate() {
 				MatchHeader("Authorization", authzHeader).
 				Reply(http.StatusInternalServerError)
 			// when
-			apptest.ShowTenantUpdateInternalServerError(t, ctx, svc, ctrl, &authzHeader, nil, nil)
+			apptest.ShowTenantUpdateInternalServerError(t, ctx, svc, ctrl, nil, nil, &authzHeader)
 			// then check that an audit record was created
 			assertAuditLog(t, s.DB, *identity, auditlog.ShowTenantUpdate, auditlog.EventParams{})
 		})

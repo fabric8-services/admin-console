@@ -52,7 +52,7 @@ func (c *TenantUpdateController) Show(ctx *app.ShowTenantUpdateContext) error {
 		return appl.AuditLogs().Create(ctx, &auditlog.AuditLog{
 			EventTypeID: auditlog.ShowTenantUpdate,
 			IdentityID:  identityID,
-			EventParams: auditlog.EventParams{},
+			EventParams: eventParams,
 		})
 	})
 	if err != nil {
