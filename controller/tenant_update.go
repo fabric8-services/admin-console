@@ -42,6 +42,13 @@ func (c *TenantUpdateController) Show(ctx *app.ShowTenantUpdateContext) error {
 		return app.JSONErrorResponse(ctx, errors.NewUnauthorizedError("invalid or missing authorization token"))
 	}
 	err = application.Transactional(c.db, func(appl application.Application) error {
+		eventParams := auditlog.EventParams{}
+		if ctx.ClusterURL != nil {
+			eventParams["clusterURL"] = *ctx.ClusterURL
+		}
+		if ctx.EnvType != nil {
+			eventParams["envType"] = *ctx.EnvType
+		}
 		return appl.AuditLogs().Create(ctx, &auditlog.AuditLog{
 			EventTypeID: auditlog.ShowTenantUpdate,
 			IdentityID:  identityID,
