@@ -295,8 +295,11 @@ clean: $(CLEAN_TARGETS)
 # -------------------------------------------------------------------
 .PHONY: dev
 ## run the server locally
-dev: prebuild-check deps generate $(FRESH_BIN) 
+dev: prebuild-check deps generate docker-compose-up $(FRESH_BIN) 
 	ADMIN_DEVELOPER_MODE_ENABLED=true $(FRESH_BIN)
+
+docker-compose-up:
+	docker-compose up -d db
 
 # -------------------------------------------------------------------
 # database migration
