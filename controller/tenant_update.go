@@ -34,7 +34,7 @@ func NewTenantUpdateController(service *goa.Service, config TenantUpdateControll
 
 // Show returns information about the ongoing tenant update
 func (c *TenantUpdateController) Show(ctx *app.ShowTenantUpdateContext) error {
-	identityID, err := authsupport.LocateIdentity(ctx)
+	identityID, username, err := authsupport.LocateIdentity(ctx)
 	if err != nil {
 		log.Error(ctx, map[string]interface{}{
 			"err": err,
@@ -52,6 +52,7 @@ func (c *TenantUpdateController) Show(ctx *app.ShowTenantUpdateContext) error {
 		return appl.AuditLogs().Create(ctx, &auditlog.AuditLog{
 			EventTypeID: auditlog.ShowTenantUpdate,
 			IdentityID:  identityID,
+			Username:    username,
 			EventParams: eventParams,
 		})
 	})
@@ -66,7 +67,7 @@ func (c *TenantUpdateController) Show(ctx *app.ShowTenantUpdateContext) error {
 
 // Start starts a tenant update
 func (c *TenantUpdateController) Start(ctx *app.StartTenantUpdateContext) error {
-	identityID, err := authsupport.LocateIdentity(ctx)
+	identityID, username, err := authsupport.LocateIdentity(ctx)
 	if err != nil {
 		log.Error(ctx, map[string]interface{}{
 			"err": err,
@@ -84,6 +85,7 @@ func (c *TenantUpdateController) Start(ctx *app.StartTenantUpdateContext) error 
 		return appl.AuditLogs().Create(ctx, &auditlog.AuditLog{
 			EventTypeID: auditlog.StartTenantUpdate,
 			IdentityID:  identityID,
+			Username:    username,
 			EventParams: eventParams,
 		})
 	})
@@ -98,7 +100,7 @@ func (c *TenantUpdateController) Start(ctx *app.StartTenantUpdateContext) error 
 
 // Stop stops the ongoing tenant update
 func (c *TenantUpdateController) Stop(ctx *app.StopTenantUpdateContext) error {
-	identityID, err := authsupport.LocateIdentity(ctx)
+	identityID, username, err := authsupport.LocateIdentity(ctx)
 	if err != nil {
 		log.Error(ctx, map[string]interface{}{
 			"err": err,
@@ -109,6 +111,7 @@ func (c *TenantUpdateController) Stop(ctx *app.StopTenantUpdateContext) error {
 		return appl.AuditLogs().Create(ctx, &auditlog.AuditLog{
 			EventTypeID: auditlog.StopTenantUpdate,
 			IdentityID:  identityID,
+			Username:    username,
 			EventParams: auditlog.EventParams{},
 		})
 	})

@@ -37,7 +37,7 @@ func NewSearchController(service *goa.Service, config SearchControllerConfigurat
 
 // SearchUsers runs the search_users action.
 func (c *SearchController) SearchUsers(ctx *app.SearchUsersSearchContext) error {
-	identityID, err := authsupport.LocateIdentity(ctx)
+	identityID, username, err := authsupport.LocateIdentity(ctx)
 	if err != nil {
 		log.Error(ctx, map[string]interface{}{
 			"err": err,
@@ -47,6 +47,7 @@ func (c *SearchController) SearchUsers(ctx *app.SearchUsersSearchContext) error 
 	record := auditlog.AuditLog{
 		EventTypeID: auditlog.UserSearch,
 		IdentityID:  identityID,
+		Username:    username,
 		EventParams: auditlog.EventParams{
 			"query": ctx.Q,
 		},
