@@ -136,8 +136,8 @@ func (r *GormAuditLogRepository) Create(ctx context.Context, auditLog *AuditLog)
 	if auditLog.EventTypeID == uuid.Nil {
 		return errors.NewBadParameterError("event_type_id", auditLog.EventTypeID)
 	}
-	if auditLog.IdentityID == uuid.Nil {
-		return errors.NewBadParameterError("identity_id", auditLog.IdentityID)
+	if auditLog.IdentityID == uuid.Nil && auditLog.Username == "" {
+		return errors.NewBadParameterErrorFromString("identity_id and username cannot be both missing at the same time")
 	}
 	db := r.db.Create(auditLog)
 	if err := db.Error; err != nil {

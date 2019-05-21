@@ -38,20 +38,55 @@ func (s *RepositoryBlackboxTestSuite) SetupSuite() {
 func (s *RepositoryBlackboxTestSuite) TestCreateRecord() {
 
 	s.T().Run("ok", func(t *testing.T) {
-		// given
-		before := time.Now()
-		auditLog := auditlog.AuditLog{
-			EventTypeID: auditlog.UserSearch,
-			IdentityID:  uuid.NewV4(),
-			Username:    "foo",
-			EventParams: auditlog.EventParams{},
-		}
-		// when
-		err := s.repo.Create(context.Background(), &auditLog)
-		// then
-		require.NoError(t, err)
-		assert.NotEqual(t, uuid.NullUUID{}, auditLog.ID)
-		assert.True(t, auditLog.CreatedAt.After(before)) // "is after before". hahahaha....
+
+		s.T().Run("with identity_id and username", func(t *testing.T) {
+			// given
+			before := time.Now()
+			auditLog := auditlog.AuditLog{
+				EventTypeID: auditlog.UserSearch,
+				IdentityID:  uuid.NewV4(),
+				Username:    "foo",
+				EventParams: auditlog.EventParams{},
+			}
+			// when
+			err := s.repo.Create(context.Background(), &auditLog)
+			// then
+			require.NoError(t, err)
+			assert.NotEqual(t, uuid.NullUUID{}, auditLog.ID)
+			assert.True(t, auditLog.CreatedAt.After(before)) // "is after before". hahahaha....
+		})
+
+		s.T().Run("with username only", func(t *testing.T) {
+			// given
+			before := time.Now()
+			auditLog := auditlog.AuditLog{
+				EventTypeID: auditlog.UserSearch,
+				Username:    "foo",
+				EventParams: auditlog.EventParams{},
+			}
+			// when
+			err := s.repo.Create(context.Background(), &auditLog)
+			// then
+			require.NoError(t, err)
+			assert.NotEqual(t, uuid.NullUUID{}, auditLog.ID)
+			assert.True(t, auditLog.CreatedAt.After(before)) // "is after before". hahahaha....
+		})
+
+		s.T().Run("with identity_id only", func(t *testing.T) {
+			// given
+			before := time.Now()
+			auditLog := auditlog.AuditLog{
+				EventTypeID: auditlog.UserSearch,
+				IdentityID:  uuid.NewV4(),
+				EventParams: auditlog.EventParams{},
+			}
+			// when
+			err := s.repo.Create(context.Background(), &auditLog)
+			// then
+			require.NoError(t, err)
+			assert.NotEqual(t, uuid.NullUUID{}, auditLog.ID)
+			assert.True(t, auditLog.CreatedAt.After(before)) // "is after before". hahahaha....
+		})
 	})
 
 	s.T().Run("failure", func(t *testing.T) {
@@ -71,10 +106,9 @@ func (s *RepositoryBlackboxTestSuite) TestCreateRecord() {
 			assert.Contains(t, err.Error(), "event_type_id")
 		})
 
-		t.Run("missing identity id", func(t *testing.T) {
+		t.Run("missing both identity_id and username", func(t *testing.T) {
 			// given
 			auditLog := auditlog.AuditLog{
-				Username:    "foo",
 				EventTypeID: auditlog.UserSearch,
 				EventParams: auditlog.EventParams{},
 			}
