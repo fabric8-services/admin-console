@@ -44,7 +44,6 @@ var _ = a.Resource("tenant_update", func() {
 				a.Enum("user", "che", "jenkins", "stage", "run")
 			})
 		})
-
 		a.Description("Start new cluster-wide update.")
 		a.Response(d.Accepted)
 		a.Response(d.Conflict) // here we don't specify a media type, because we're just proxying to `tenant`
