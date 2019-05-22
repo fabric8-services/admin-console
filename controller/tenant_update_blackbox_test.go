@@ -360,10 +360,18 @@ func (s *TenantUpdateControllerBlackboxTestSuite) TestStopTenantUpdate() {
 
 func assertAuditLog(t *testing.T, db *gorm.DB, identity testauth.Identity, expectedEventType uuid.UUID, expectedQueryParams auditlog.EventParams) {
 	recordRepo := auditlog.NewRepository(db)
+	// check events by identity ID
 	records, total, err := recordRepo.ListByIdentityID(context.Background(), identity.ID, 0, 5)
 	require.NoError(t, err)
 	require.Equal(t, 1, total)
 	record := records[0]
+	assert.Equal(t, expectedEventType, record.EventTypeID)
+	assert.Equal(t, expectedQueryParams, record.EventParams)
+	// also check events by username
+	records, total, err = recordRepo.ListByUsername(context.Background(), identity.Username, 0, 5)
+	require.NoError(t, err)
+	require.Equal(t, 1, total)
+	record = records[0]
 	assert.Equal(t, expectedEventType, record.EventTypeID)
 	assert.Equal(t, expectedQueryParams, record.EventParams)
 }

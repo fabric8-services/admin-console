@@ -74,7 +74,7 @@
   revision = "0eb93fc6cee1e202cb0f3ade92e99a2423b49283"
 
 [[projects]]
-  digest = "1:7ee8631557e373dc6b435dc8f371b5993fb8d87a8183ee2245df2856c3aa59c4"
+  digest = "1:030faac594e87c43959856532f5e27d30948034bc5c3638f7207f3e5d19da075"
   name = "github.com/fabric8-services/fabric8-common"
   packages = [
     "auth",
@@ -98,7 +98,7 @@
     "test/suite",
   ]
   pruneopts = "UT"
-  revision = "988ec38ba27dc10cc955f19cce227e7cd8d58528"
+  revision = "2cc2344d55776abe18178fc1c2efa8abc9996565"
 
 [[projects]]
   digest = "1:abeb38ade3f32a92943e5be54f55ed6d6e3b6602761d74b4aab4c9dd45c18abd"
@@ -511,7 +511,7 @@
   version = "v1.2.0"
 
 [[projects]]
-  digest = "1:5110e3d4f130772fd39e6ce8208ad1955b242ccfcc8ad9d158857250579c82f4"
+  digest = "1:8ff03ccc603abb0d7cce94d34b613f5f6251a9e1931eba1a3f9888a9029b055c"
   name = "github.com/stretchr/testify"
   packages = [
     "assert",
@@ -519,8 +519,8 @@
     "suite",
   ]
   pruneopts = "UT"
-  revision = "f35b8ab0b5a2cef36673838d662e249dd9c94686"
-  version = "v1.2.2"
+  revision = "ffdc059bfe9ce6a4e144ba849dbedead332c6053"
+  version = "v1.3.0"
 
 [[projects]]
   branch = "master"
@@ -681,6 +681,7 @@
     "github.com/goadesign/goa/middleware",
     "github.com/goadesign/goa/middleware/gzip",
     "github.com/goadesign/goa/middleware/security/jwt",
+    "github.com/gojuno/minimock",
     "github.com/gojuno/minimock/cmd/minimock",
     "github.com/golang/lint/golint",
     "github.com/google/gops/agent",

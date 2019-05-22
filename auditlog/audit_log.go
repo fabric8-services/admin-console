@@ -24,6 +24,7 @@ type AuditLog struct {
 	ID          uuid.UUID   `sql:"type:uuid default uuid_generate_v4()" gorm:"primary_key;column:audit_log_id"`
 	CreatedAt   time.Time   `json:"created_at,omitempty"`
 	IdentityID  uuid.UUID   `sql:"type:uuid"`
+	Username    string      `sql:"type:string"`
 	EventTypeID uuid.UUID   `sql:"type:uuid"`
 	EventParams EventParams `sql:"type:jsonb"`
 }
@@ -109,6 +110,7 @@ type Repository interface {
 	Create(ctx context.Context, auditLog *AuditLog) error
 	LoadByID(ctx context.Context, id uuid.UUID) (AuditLog, error)
 	ListByIdentityID(ctx context.Context, identityID uuid.UUID, start int, limit int) ([]AuditLog, int, error)
+	ListByUsername(ctx context.Context, username string, start int, limit int) ([]AuditLog, int, error)
 }
 
 // NewRepository creates a GormRecordRepository
@@ -134,8 +136,8 @@ func (r *GormAuditLogRepository) Create(ctx context.Context, auditLog *AuditLog)
 	if auditLog.EventTypeID == uuid.Nil {
 		return errors.NewBadParameterError("event_type_id", auditLog.EventTypeID)
 	}
-	if auditLog.IdentityID == uuid.Nil {
-		return errors.NewBadParameterError("identity_id", auditLog.IdentityID)
+	if auditLog.IdentityID == uuid.Nil && auditLog.Username == "" {
+		return errors.NewBadParameterErrorFromString("identity_id and username cannot be both missing at the same time")
 	}
 	db := r.db.Create(auditLog)
 	if err := db.Error; err != nil {
@@ -166,8 +168,77 @@ func (r *GormAuditLogRepository) LoadByID(ctx context.Context, id uuid.UUID) (Au
 // returns BadParameterError if the `start` or `limit` are invalid (negative) or InternalError an error if something wrong happened
 // while qyerying or reading the returned rows
 func (r *GormAuditLogRepository) ListByIdentityID(ctx context.Context, identityID uuid.UUID, start int, limit int) ([]AuditLog, int, error) {
-	defer goa.MeasureSince([]string{"goa", "db", "auditLogs", "list"}, time.Now())
+	defer goa.MeasureSince([]string{"goa", "db", "auditLogs", "list_by_identity_id"}, time.Now())
 	db := r.db.Model(&AuditLog{}).Where("identity_id = ?", identityID)
+	unboundedDB := db
+	if start < 0 {
+		return nil, 0, errors.NewBadParameterError("start", start)
+	}
+	db = db.Offset(start)
+	if limit <= 0 {
+		return nil, 0, errors.NewBadParameterError("limit", limit)
+	}
+	db = db.Limit(limit)
+
+	db = db.Select("count(*) over () as cnt2 , *")
+	if err := db.Error; err != nil {
+		return []AuditLog{}, 0, errors.NewInternalError(ctx, err)
+	}
+	rows, err := db.Rows()
+	defer closeable.Close(ctx, rows)
+	if err != nil {
+		return []AuditLog{}, 0, errors.NewInternalError(ctx, err)
+	}
+
+	result := []AuditLog{}
+	columns, err := rows.Columns()
+	if err != nil {
+		return nil, 0, errors.NewInternalError(ctx, err)
+	}
+
+	// need to set up a result for Scan() in order to extract total count.
+	var count int
+	var ignore interface{}
+	columnValues := make([]interface{}, len(columns))
+
+	for index := range columnValues {
+		columnValues[index] = &ignore
+	}
+	columnValues[0] = &count
+	first := true
+
+	for rows.Next() {
+		value := AuditLog{}
+		db.ScanRows(rows, &value)
+		if first {
+			first = false
+			if err = rows.Scan(columnValues...); err != nil {
+				return nil, 0, errors.NewInternalError(ctx, err)
+			}
+		}
+		result = append(result, value)
+	}
+	if first {
+		// means 0 rows were returned from the first query (maybe becaus of offset outside of total count),
+		// need to do a count(*) to find out total
+		orgDB := unboundedDB.Select("count(*)")
+		rows2, err := orgDB.Rows()
+		defer closeable.Close(ctx, rows2)
+		if err != nil {
+			return nil, 0, errors.NewInternalError(ctx, err)
+		}
+		rows2.Next() // count(*) will always return a row
+		rows2.Scan(&count)
+	}
+	return result, count, nil
+}
+
+// ListByUsername returns audit log records that belong to a user (given her username), as well as the total number of records
+// returns BadParameterError if the `start` or `limit` are invalid (negative) or InternalError an error if something wrong happened
+// while qyerying or reading the returned rows
+func (r *GormAuditLogRepository) ListByUsername(ctx context.Context, username string, start int, limit int) ([]AuditLog, int, error) {
+	defer goa.MeasureSince([]string{"goa", "db", "auditLogs", "list_by_username"}, time.Now())
+	db := r.db.Model(&AuditLog{}).Where("username = ?", username)
 	unboundedDB := db
 	if start < 0 {
 		return nil, 0, errors.NewBadParameterError("start", start)

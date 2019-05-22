@@ -306,7 +306,7 @@ docker-compose-up:
 # -------------------------------------------------------------------
 .PHONY: migrate-database
 ## Compiles the server and runs the database migration with it
-migrate-database: $(SERVER_BIN) 
+migrate-database: sqlbindata $(SERVER_BIN) 
 	$(SERVER_BIN) -migrateDatabase
 
 .PHONY: sqlbindata
