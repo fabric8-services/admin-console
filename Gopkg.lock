@@ -74,7 +74,7 @@
   revision = "0eb93fc6cee1e202cb0f3ade92e99a2423b49283"
 
 [[projects]]
-  digest = "1:030faac594e87c43959856532f5e27d30948034bc5c3638f7207f3e5d19da075"
+  digest = "1:9b63eaa759cfed0d0e888ac0de24a5a49eb4778d06bf1acff265a1c856bf0624"
   name = "github.com/fabric8-services/fabric8-common"
   packages = [
     "auth",
@@ -98,7 +98,7 @@
     "test/suite",
   ]
   pruneopts = "UT"
-  revision = "2cc2344d55776abe18178fc1c2efa8abc9996565"
+  revision = "c08218d5adf274cd1950db3636e825dc180921cc"
 
 [[projects]]
   digest = "1:abeb38ade3f32a92943e5be54f55ed6d6e3b6602761d74b4aab4c9dd45c18abd"
@@ -645,6 +645,7 @@
   analyzer-version = 1
   input-imports = [
     "github.com/davecgh/go-spew/spew",
+    "github.com/dgrijalva/jwt-go",
     "github.com/fabric8-services/fabric8-common/auth",
     "github.com/fabric8-services/fabric8-common/closeable",
     "github.com/fabric8-services/fabric8-common/configuration",

@@ -22,6 +22,7 @@ func Steps() Scripts {
 		{"002-tenant-updates-event-types.sql"},
 		{"003-audit-log-with-username.sql"},
 		{"004-deactivation-event-types.sql"},
+		{"005-list-audit-logs-event-type.sql"},
 	}
 }
 

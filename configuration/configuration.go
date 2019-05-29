@@ -304,6 +304,13 @@ func (c *Configuration) IsDeveloperModeEnabled() bool {
 	return c.v.GetBool(varDeveloperModeEnabled)
 }
 
+// IsPostgresDeveloperModeEnabled returns if development related features (as set via default, config file, or environment variable),
+// e.g. token generation endpoint are enabled
+func (c *Configuration) IsPostgresDeveloperModeEnabled() bool {
+	// for backward compatibility with fabric8-common
+	return false
+}
+
 // IsCleanTestDataEnabled returns `true` if the test data should be cleaned after each test. (default: true)
 func (c *Configuration) IsCleanTestDataEnabled() bool {
 	return c.v.GetBool(varCleanTestDataEnabled)

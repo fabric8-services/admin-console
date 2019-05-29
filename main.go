@@ -137,7 +137,7 @@ func main() {
 	app.MountTenantUpdateController(service, tenantUpdateCtrl)
 
 	// Mount the '/auditlogs/users' controller
-	auditLogsCtrl := controller.NewAuditLogsController(service, appDB)
+	auditLogsCtrl := controller.NewAuditLogsController(service, config, appDB)
 	app.MountAuditLogController(service, auditLogsCtrl)
 
 	log.Logger().Infoln("Git Commit SHA: ", app.Commit)
