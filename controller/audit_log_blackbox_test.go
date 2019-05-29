@@ -2,6 +2,7 @@ package controller_test
 
 import (
 	"context"
+	"fmt"
 	"testing"
 	"time"
 
@@ -50,27 +51,51 @@ func (s *AuditLogsControllerBlackboxTestSuite) TestCreateAuditLog() {
 	})
 	require.NoError(s.T(), err)
 	s.Run("success", func() {
-		// when
-		eventParams := auditlog.EventParams{
-			"notification_deactivation": time.Now().Format("2006-01-02:15:04:05"),
-			"scheduled_deactivation":    time.Now().Add(time.Hour * 24 * 7).Format("2006-01-02:15:04:05"),
-		}
-		apptest.CreateAuditLogNoContent(s.T(), ctx, svc, ctrl, "username", &app.CreateAuditLogPayload{
-			Data: &app.CreateAuditLogData{
-				Type: "audit_logs",
-				Attributes: &app.CreateAuditLogDataAttributes{
-					EventType:   auditlog.UserDeactivationEvent,
-					EventParams: eventParams,
+
+		s.Run("with event params", func() {
+			// when
+			username := fmt.Sprintf("user-%v", uuid.NewV4())
+			eventParams := auditlog.EventParams{
+				"notification_deactivation": time.Now().Format("2006-01-02:15:04:05"),
+				"scheduled_deactivation":    time.Now().Add(time.Hour * 24 * 7).Format("2006-01-02:15:04:05"),
+			}
+			apptest.CreateAuditLogNoContent(s.T(), ctx, svc, ctrl, username, &app.CreateAuditLogPayload{
+				Data: &app.CreateAuditLogData{
+					Type: "audit_logs",
+					Attributes: &app.CreateAuditLogDataAttributes{
+						EventType:   auditlog.UserDeactivationEvent,
+						EventParams: eventParams,
+					},
 				},
-			},
+			})
+			// then check that the data was collected
+			records, total, err := auditlog.NewRepository(s.DB).ListByUsername(context.Background(), username, 0, 5)
+			require.NoError(s.T(), err)
+			require.Equal(s.T(), 1, total)
+			record := records[0]
+			assert.Equal(s.T(), auditlog.UserDeactivation, record.EventTypeID)
+			assert.Equal(s.T(), eventParams, record.EventParams)
 		})
-		// then check that the data was collected
-		records, total, err := auditlog.NewRepository(s.DB).ListByUsername(context.Background(), "username", 0, 5)
-		require.NoError(s.T(), err)
-		require.Equal(s.T(), 1, total)
-		record := records[0]
-		assert.Equal(s.T(), auditlog.UserDeactivation, record.EventTypeID)
-		assert.Equal(s.T(), eventParams, record.EventParams)
+
+		s.Run("without event params", func() {
+			// when
+			username := fmt.Sprintf("user-%v", uuid.NewV4())
+			apptest.CreateAuditLogNoContent(s.T(), ctx, svc, ctrl, username, &app.CreateAuditLogPayload{
+				Data: &app.CreateAuditLogData{
+					Type: "audit_logs",
+					Attributes: &app.CreateAuditLogDataAttributes{
+						EventType: auditlog.UserDeactivationEvent,
+					},
+				},
+			})
+			// then check that the data was collected
+			records, total, err := auditlog.NewRepository(s.DB).ListByUsername(context.Background(), username, 0, 5)
+			require.NoError(s.T(), err)
+			require.Equal(s.T(), 1, total)
+			record := records[0]
+			assert.Equal(s.T(), auditlog.UserDeactivation, record.EventTypeID)
+			assert.Nil(s.T(), record.EventParams)
+		})
 	})
 
 	s.Run("failures", func() {

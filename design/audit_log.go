@@ -54,5 +54,5 @@ var createAuditLogData = a.Type("CreateAuditLogData", func() {
 var createAuditLogDataAttributes = a.Type("CreateAuditLogDataAttributes", func() {
 	a.Attribute("event_type", d.String, "the type of event")
 	a.Attribute("event_params", a.HashOf(d.String, d.Any), "a generic map holding the params of the event to log")
-	a.Required("event_type", "event_params")
+	a.Required("event_type")
 })

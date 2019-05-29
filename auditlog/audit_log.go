@@ -179,7 +179,7 @@ func (r *GormAuditLogRepository) ListByIdentityID(ctx context.Context, identityI
 		return nil, 0, errors.NewBadParameterError("limit", limit)
 	}
 	db = db.Limit(limit)
-
+	db = db.Order("created_at")
 	db = db.Select("count(*) over () as cnt2 , *")
 	if err := db.Error; err != nil {
 		return []AuditLog{}, 0, errors.NewInternalError(ctx, err)
@@ -248,7 +248,7 @@ func (r *GormAuditLogRepository) ListByUsername(ctx context.Context, username st
 		return nil, 0, errors.NewBadParameterError("limit", limit)
 	}
 	db = db.Limit(limit)
-
+	db = db.Order("created_at")
 	db = db.Select("count(*) over () as cnt2 , *")
 	if err := db.Error; err != nil {
 		return []AuditLog{}, 0, errors.NewInternalError(ctx, err)
