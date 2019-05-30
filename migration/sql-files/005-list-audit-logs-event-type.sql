@@ -1,0 +1,1 @@
+insert into event_type (event_type_id, name) values ('3a7cc30b-1b7f-4764-9a35-d1bbb5cfe38a', 'list_audit_logs'); 
