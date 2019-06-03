@@ -206,12 +206,12 @@ func (s *AuditLogsControllerBlackboxTestSuite) TestListAuditLogs() {
 			assert.Nil(s.T(), result.Data[0].Attributes.EventParams)
 			// verify links
 			require.NotNil(s.T(), result.Links.First)
-			assert.Equal(s.T(), fmt.Sprintf("http:///api/auditlogs/%s?page[start]=0&page[size]=1", targetUser), *result.Links.First)
+			assert.Equal(s.T(), fmt.Sprintf("http:///api/auditlogs/users/%s?page[start]=0&page[size]=1", targetUser), *result.Links.First)
 			require.Nil(s.T(), result.Links.Prev)
 			require.NotNil(s.T(), result.Links.Next)
-			assert.Equal(s.T(), fmt.Sprintf("http:///api/auditlogs/%s?page[start]=1&page[size]=1", targetUser), *result.Links.Next)
+			assert.Equal(s.T(), fmt.Sprintf("http:///api/auditlogs/users/%s?page[start]=1&page[size]=1", targetUser), *result.Links.Next)
 			require.NotNil(s.T(), result.Links.Last)
-			assert.Equal(s.T(), fmt.Sprintf("http:///api/auditlogs/%s?page[start]=1&page[size]=1", targetUser), *result.Links.Last)
+			assert.Equal(s.T(), fmt.Sprintf("http:///api/auditlogs/users/%s?page[start]=1&page[size]=1", targetUser), *result.Links.Last)
 			// verify meta
 			require.NotNil(s.T(), result.Meta)
 			assert.Equal(s.T(), result.Meta.TotalCount, 2)
@@ -233,12 +233,12 @@ func (s *AuditLogsControllerBlackboxTestSuite) TestListAuditLogs() {
 			assert.Equal(s.T(), result.Meta.TotalCount, 2)
 			// verify links
 			require.NotNil(s.T(), result.Links.First)
-			assert.Equal(s.T(), fmt.Sprintf("http:///api/auditlogs/%s?page[start]=0&page[size]=1", targetUser), *result.Links.First)
+			assert.Equal(s.T(), fmt.Sprintf("http:///api/auditlogs/users/%s?page[start]=0&page[size]=1", targetUser), *result.Links.First)
 			require.NotNil(s.T(), result.Links.Prev)
-			assert.Equal(s.T(), fmt.Sprintf("http:///api/auditlogs/%s?page[start]=0&page[size]=1", targetUser), *result.Links.Prev)
+			assert.Equal(s.T(), fmt.Sprintf("http:///api/auditlogs/users/%s?page[start]=0&page[size]=1", targetUser), *result.Links.Prev)
 			require.Nil(s.T(), result.Links.Next)
 			require.NotNil(s.T(), result.Links.Last)
-			assert.Equal(s.T(), fmt.Sprintf("http:///api/auditlogs/%s?page[start]=1&page[size]=1", targetUser), *result.Links.Last)
+			assert.Equal(s.T(), fmt.Sprintf("http:///api/auditlogs/users/%s?page[start]=1&page[size]=1", targetUser), *result.Links.Last)
 			// also, verify that an event was logged on behalf of the requesting user
 			s.assertRequesterLogs(requestingUser, targetUser)
 		})
@@ -257,11 +257,11 @@ func (s *AuditLogsControllerBlackboxTestSuite) TestListAuditLogs() {
 			assert.Equal(s.T(), result.Meta.TotalCount, 2)
 			// verify links
 			require.NotNil(s.T(), result.Links.First)
-			assert.Equal(s.T(), fmt.Sprintf("http:///api/auditlogs/%s?page[start]=0&page[size]=10", targetUser), *result.Links.First)
+			assert.Equal(s.T(), fmt.Sprintf("http:///api/auditlogs/users/%s?page[start]=0&page[size]=10", targetUser), *result.Links.First)
 			require.Nil(s.T(), result.Links.Prev)
 			require.Nil(s.T(), result.Links.Next)
 			require.NotNil(s.T(), result.Links.Last)
-			assert.Equal(s.T(), fmt.Sprintf("http:///api/auditlogs/%s?page[start]=0&page[size]=10", targetUser), *result.Links.Last)
+			assert.Equal(s.T(), fmt.Sprintf("http:///api/auditlogs/users/%s?page[start]=0&page[size]=10", targetUser), *result.Links.Last)
 			// also, verify that an event was logged on behalf of the requesting user
 			s.assertRequesterLogs(requestingUser, targetUser)
 		})
@@ -279,11 +279,11 @@ func (s *AuditLogsControllerBlackboxTestSuite) TestListAuditLogs() {
 			assert.Equal(s.T(), result.Meta.TotalCount, 2)
 			// verify links
 			require.NotNil(s.T(), result.Links.First)
-			assert.Equal(s.T(), fmt.Sprintf("http:///api/auditlogs/%s?page[start]=0&page[size]=10", targetUser), *result.Links.First)
+			assert.Equal(s.T(), fmt.Sprintf("http:///api/auditlogs/users/%s?page[start]=0&page[size]=10", targetUser), *result.Links.First)
 			require.Nil(s.T(), result.Links.Prev)
 			require.Nil(s.T(), result.Links.Next)
 			require.NotNil(s.T(), result.Links.Last)
-			assert.Equal(s.T(), fmt.Sprintf("http:///api/auditlogs/%s?page[start]=0&page[size]=10", targetUser), *result.Links.Last)
+			assert.Equal(s.T(), fmt.Sprintf("http:///api/auditlogs/users/%s?page[start]=0&page[size]=10", targetUser), *result.Links.Last)
 			// also, verify that an event was logged on behalf of the requesting user
 			s.assertRequesterLogs(requestingUser, targetUser)
 		})
