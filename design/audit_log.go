@@ -29,7 +29,7 @@ var _ = a.Resource("audit_log", func() {
 	a.Action("list_for_user", func() {
 		a.Security("jwt")
 		a.Routing(
-			a.GET("/:username"),
+			a.GET("users/:username"),
 		)
 		a.Description("List audit logs for a given user")
 		a.Params(func() {
