@@ -176,14 +176,6 @@
   revision = "a5502dd2746ee6fc3fd58ad83d701d25e14d68d1"
 
 [[projects]]
-  branch = "master"
-  digest = "1:4ee452f8994700dcab9e816aef1cb9eb2317218734c6ccf5135746e6c19f3dce"
-  name = "github.com/golang/lint"
-  packages = ["golint"]
-  pruneopts = "UT"
-  revision = "06c8688daad7faa9da5a0c2f163a3d14aac986ca"
-
-[[projects]]
   digest = "1:97df918963298c287643883209a2c3f642e6593379f97ab400c2a2e219ab647d"
   name = "github.com/golang/protobuf"
   packages = ["proto"]
@@ -553,9 +545,12 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:9238d4d6fdc7b3859e37764c86d02625b74e0c76cd1faae3677735d5c5129724"
+  digest = "1:7bed3b51d5574e7ecca8a1de4081e8dc2bd24d1321f61f2daee054fde27885b1"
   name = "golang.org/x/lint"
-  packages = ["."]
+  packages = [
+    ".",
+    "golint",
+  ]
   pruneopts = "UT"
   revision = "06c8688daad7faa9da5a0c2f163a3d14aac986ca"
 
@@ -682,9 +677,7 @@
     "github.com/goadesign/goa/middleware",
     "github.com/goadesign/goa/middleware/gzip",
     "github.com/goadesign/goa/middleware/security/jwt",
-    "github.com/gojuno/minimock",
     "github.com/gojuno/minimock/cmd/minimock",
-    "github.com/golang/lint/golint",
     "github.com/google/gops/agent",
     "github.com/jinzhu/gorm",
     "github.com/jteeuwen/go-bindata/go-bindata",
@@ -700,6 +693,7 @@
     "github.com/stretchr/testify/require",
     "github.com/stretchr/testify/suite",
     "github.com/wadey/gocovmerge",
+    "golang.org/x/lint/golint",
     "gopkg.in/h2non/gock.v1",
     "gopkg.in/yaml.v2",
   ]
