@@ -19,7 +19,6 @@ import (
 	"github.com/fabric8-services/fabric8-common/goamiddleware"
 	"github.com/fabric8-services/fabric8-common/log"
 	"github.com/fabric8-services/fabric8-common/metric"
-	"github.com/fabric8-services/fabric8-common/sentry"
 
 	"github.com/goadesign/goa"
 	goalogrus "github.com/goadesign/goa/logging/logrus"
@@ -80,17 +79,17 @@ func main() {
 	}
 
 	// Initialize sentry client
-	haltSentry, err := sentry.InitializeSentryClient(
-		nil, // will use the `os.Getenv("Sentry_DSN")` instead
-		sentry.WithRelease(app.Commit),
-		sentry.WithEnvironment(config.GetEnvironment()),
-	)
-	if err != nil {
-		log.Panic(context.TODO(), map[string]interface{}{
-			"err": err,
-		}, "failed to setup the sentry client")
-	}
-	defer haltSentry()
+	// haltSentry, err := sentry.InitializeSentryClient(
+	// 	nil, // will use the `os.Getenv("Sentry_DSN")` instead
+	// 	sentry.WithRelease(app.Commit),
+	// 	sentry.WithEnvironment(config.GetEnvironment()),
+	// )
+	// if err != nil {
+	// 	log.Panic(context.TODO(), map[string]interface{}{
+	// 		"err": err,
+	// 	}, "failed to setup the sentry client")
+	// }
+	// defer haltSentry()
 
 	// Create service
 	service := goa.New("admin-console")
