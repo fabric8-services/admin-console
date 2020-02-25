@@ -26,14 +26,6 @@
   revision = "3a771d992973f24aa725d07868b467d1ddfceafb"
 
 [[projects]]
-  digest = "1:fed1f537c2f1269fe475a8556c393fe466641682d73ef8fd0491cd3aa1e47bad"
-  name = "github.com/certifi/gocertifi"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "deb3ae2ef2610fde3330947281941c562861188b"
-  version = "2018.01.18"
-
-[[projects]]
   digest = "1:ffe9824d294da03b391f44e1ae8281281b4afc1bdaa9588c9097785e3af10cec"
   name = "github.com/davecgh/go-spew"
   packages = ["spew"]
@@ -74,7 +66,7 @@
   revision = "0eb93fc6cee1e202cb0f3ade92e99a2423b49283"
 
 [[projects]]
-  digest = "1:9b63eaa759cfed0d0e888ac0de24a5a49eb4778d06bf1acff265a1c856bf0624"
+  digest = "1:d58d63ab46e1974da304ddeea8d033e1cdf8317720346047109bd7b0746d56db"
   name = "github.com/fabric8-services/fabric8-common"
   packages = [
     "auth",
@@ -93,12 +85,11 @@
     "metric",
     "migration",
     "resource",
-    "sentry",
     "test/auth",
     "test/suite",
   ]
   pruneopts = "UT"
-  revision = "c08218d5adf274cd1950db3636e825dc180921cc"
+  revision = "8d814590eab3954d984a04bd3b87ac518cf45462"
 
 [[projects]]
   digest = "1:abeb38ade3f32a92943e5be54f55ed6d6e3b6602761d74b4aab4c9dd45c18abd"
@@ -115,13 +106,6 @@
   packages = ["."]
   pruneopts = "UT"
   revision = "6acd4345c835499920e8426c7e4e8d7a34f1bb83"
-
-[[projects]]
-  digest = "1:64ef2c2f0f508690f06c1b009e1e3103441ce60c2db0323ff94d8d1c560ec10b"
-  name = "github.com/getsentry/raven-go"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "084a9de9eb0361fbd5ded14b55c84e5493a5d7f6"
 
 [[projects]]
   digest = "1:1b6bcf7a8dcf2c0c155dc491ba0f49556cbec498676418555e1ee66b04edf68f"
@@ -655,7 +639,6 @@
     "github.com/fabric8-services/fabric8-common/metric",
     "github.com/fabric8-services/fabric8-common/migration",
     "github.com/fabric8-services/fabric8-common/resource",
-    "github.com/fabric8-services/fabric8-common/sentry",
     "github.com/fabric8-services/fabric8-common/test/auth",
     "github.com/fabric8-services/fabric8-common/test/suite",
     "github.com/fzipp/gocyclo",
